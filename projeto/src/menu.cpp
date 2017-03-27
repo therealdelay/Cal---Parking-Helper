@@ -64,20 +64,16 @@ int mainMenu(){
 
 	switch(getOption(1,3)){
 	case 0:
-		cout << "0\n";
 		invalidOption();
 		mainMenu();
 		break;
 	case 1:
 		closestSpot();
-		cout << "1\n";
 		break;
 	case 2:
 		cheapestSpot();
-		cout << "2\n";
 		break;
 	case 3:
-		cout << "3\n";
 		exit(0);
 	}
 
