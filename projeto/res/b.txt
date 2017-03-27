@@ -1,0 +1,54 @@
+64181682;Rotunda do Arco-Irís;False
+86251308;;False
+86251350;;False
+105665156;Rua de Vila Chã;False
+135639674;;False
+135639677;Rua de Vila Chã;False
+135639679;;False
+135639681;;False
+135639682;Travessa da Póvoa;True
+135639683;;True
+138038478;Rua do Passal;True
+138038490;;True
+142890851;Rua de Vila Chã;True
+142890853;Rua de Vila Chã;True
+142890855;Rua Nova da Ponte;True
+153658245;;True
+153664403;Avenida de Santo António;False
+153669371;Travessa dos Campos;True
+153669374;Rua das Leiras;True
+153669378;Travessa da Jundeca;True
+153669381;;True
+161132918;Rua de Vila Chã;True
+161132919;Rua de Vila Chã;True
+185988776;;False
+185988777;;False
+187785527;;False
+221192377;Via Sul;True
+221193441;Via Norte;True
+221828767;;True
+221828768;;True
+222324415;Travessa do Gueide;True
+222330703;Rua da Escola;True
+222330740;Avenida de Santo António;False
+222337067;escadinhas das Almas;False
+222338105;Rua de Vila Chã;False
+222338106;Travessa da Corredoura;True
+222338368;Rua Vasco da Gama;True
+222338649;Beco da Corredoura;True
+222339797;;True
+222340762;Travessa das Leiras;True
+222341169;Travessa do Passal de Cima;True
+382772097;Travessa do Gueide;True
+382772098;Travessa do Gueide;True
+382772099;;False
+382772100;;False
+382772101;;False
+397648402;;False
+397648403;;False
+397648405;;False
+397648406;;False
+397648412;;False
+397648414;;False
+417899898;;False
+417899899;;False

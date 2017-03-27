@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
+#include <cmath>
+#include <fstream>
 
 using namespace std;
 
@@ -80,9 +82,20 @@ int mainMenu(){
 	return 0;
 }
 
+void readVertices(){
+	ifstream i("vertices.txt");
+	char lixo;
+	long long int vid;
+	float vlatdeg, vlatrad, vlondeg, vlonrad;
+	while(!i.eof()){
+		i >> vid >> lixo >> vlatdeg >> lixo >> vlondeg >> lixo >> vlatrad >> lixo >> vlonrad;
+		cout << vid << endl << vlatdeg << endl << vlondeg << endl << vlatrad << endl << vlonrad << endl;
+	}
+}
 
 
 int main(){
+	readVertices();
 	mainMenu();
 	return 0;
 }
