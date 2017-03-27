@@ -93,9 +93,31 @@ void readVertices(){
 	}
 }
 
+void readRuas(){
+	ifstream i("ruas.txt");
+	char lixo;
+	long long int rid;
+	string rname, rbool;
+	bool rtwoways;
+	while(!i.eof()){
+		i >> rid >> lixo; getline(i,rname,';');
+		getline(i, rbool);
+		rtwoways = (rbool == "False") ? false : true;
+		cout << rid << endl << rname << endl << rtwoways << endl;
+	}
+}
+
+void readArestas(){
+	ifstream i("arestas.txt");
+	char lixo;
+	long long int rid, vsource, vdest;
+
+}
+
 
 int main(){
-	readVertices();
+	//readVertices();
+	readRuas();
 	mainMenu();
 	return 0;
 }
