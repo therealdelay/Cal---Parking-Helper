@@ -3,8 +3,13 @@
 #include <stdlib.h>
 #include <cmath>
 #include <fstream>
+#include "Graph.h"
 
 using namespace std;
+
+template <class T>
+Graph<Vertex<T>*> *map;
+
 
 int getOption(int a, int b){
 	cout << "> ";

@@ -33,7 +33,6 @@ class Vertex {
 	void addEdge(Vertex<T> *dest, double w);
 	bool removeEdgeTo(Vertex<T> *d);
 
-	//folha pratica 5
 	int indegree;
 	int dist;
 public:
@@ -50,7 +49,7 @@ public:
 
 template <class T>
 bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
-	d->indegree--; //adicionado do exercicio 5
+	d->indegree--;
 	typename vector<Edge<T> >::iterator it= adj.begin();
 	typename vector<Edge<T> >::iterator ite= adj.end();
 	while (it!=ite) {
@@ -63,7 +62,7 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
 	return false;
 }
 
-//atualizado pelo exercicio 5
+
 template <class T>
 Vertex<T>::Vertex(T in): info(in), visited(false), processing(false), indegree(0), dist(0) {
 	path = NULL;
@@ -114,7 +113,6 @@ class Graph {
 	vector<Vertex<T> *> vertexSet;
 	void dfs(Vertex<T> *v, vector<T> &res) const;
 
-	//Exercicio 5
 	int numCycles;
 	void dfsVisit(Vertex<T> *v);
 	void dfsVisit();
@@ -130,7 +128,6 @@ public:
 	vector<Vertex<T> * > getVertexSet() const;
 	int getNumVertex() const;
 
-	//Exercicio 5
 	Vertex<T>* getVertex(const T &v) const;
 	void resetIndegrees();
 	vector<Vertex<T>*> getSources() const;
@@ -204,7 +201,7 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
 		it ++;
 	}
 	if (found!=2) return false;
-	vD->indegree++; //adicionado pelo exercicio 5
+	vD->indegree++;
 	vS->addEdge(vD,w);
 
 
@@ -226,7 +223,6 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 	}
 	if (found!=2) return false;
 
-	//adicionado pelo exercicio 5
 	return vS->removeEdgeTo(vD);
 }
 
