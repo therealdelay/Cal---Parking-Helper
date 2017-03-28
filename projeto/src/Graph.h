@@ -26,7 +26,8 @@ const int INT_INFINITY = INT_MAX;
  */
 template <class T>
 class Vertex {
-	T info;
+	long long int id;
+	string type;
 	vector<Edge<T>  > adj;
 	bool visited;
 	bool processing;
@@ -64,7 +65,7 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
 
 
 template <class T>
-Vertex<T>::Vertex(T in): info(in), visited(false), processing(false), indegree(0), dist(0) {
+Vertex<T>::Vertex(T in): id(in), type(""), visited(false), processing(false), indegree(0), dist(0) {
 	path = NULL;
 }
 
@@ -78,7 +79,7 @@ void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
 
 template <class T>
 T Vertex<T>::getInfo() const {
-	return this->info;
+	return this->id;
 }
 
 template <class T>

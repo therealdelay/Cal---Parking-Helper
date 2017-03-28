@@ -119,10 +119,10 @@ void readArestas(){
 
 }
 
-
+/*
 int main(){
 	//readVertices();
 	readRuas();
 	mainMenu();
 	return 0;
-}
+}*/

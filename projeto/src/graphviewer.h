@@ -14,6 +14,7 @@
 
 #include "edgetype.h"
 #include "connection.h"
+#include "Graph.h"
 
 #define BLUE "BLUE"
 #define RED "RED"
@@ -33,6 +34,7 @@
  * Classe que guarda o grafo e o representa. Todas as suas funções retornam um booleano a indicar
  * se a sua execução decorreu ou não com sucesso.
  */
+template <class T>
 class GraphViewer {
 public:
 	/**
@@ -95,7 +97,7 @@ public:
 	 * @param x Posição horizontal do nó.
 	 * @param y Posição vertical do nó.
 	 */
-	bool addNode(int id, int x, int y);
+	bool addNode(Vertex<T> &v);
 
 	/**
 	 * Acrescenta um nó à representação do grafo, numa posição ao critério do programa.
