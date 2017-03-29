@@ -118,11 +118,3 @@ void readArestas(){
 	long long int rid, vsource, vdest;
 
 }
-
-/*
-int main(){
-	//readVertices();
-	readRuas();
-	mainMenu();
-	return 0;
-}*/
