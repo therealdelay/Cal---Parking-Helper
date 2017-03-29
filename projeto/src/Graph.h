@@ -9,8 +9,6 @@
 #include <list>
 #include <limits.h>
 #include <cmath>
-#include <cstddef>
-
 using namespace std;
 
 template <class T> class Edge;
@@ -22,45 +20,57 @@ const int DONE_VISITED = 2;
 const int INT_INFINITY = INT_MAX;
 
 /*
+ * ================================================================================================
  * Class Vertex
+ * ================================================================================================
  */
 template <class T>
 class Vertex {
-	T id;
+	T info;
+	double x;
+	double y;
+	double xrad;
+	double yrad;
 	string type;
-	double X;
-	double Y;
-	double Xrad;
-	double Yrad;
-	vector<Edge<T> > adj;
+	vector<Edge<T>  > adj;
 	bool visited;
 	bool processing;
-	void addEdge(Vertex<T> *dest, double w);
-	bool removeEdgeTo(Vertex<T> *d);
-
 	int indegree;
 	int dist;
 public:
-	Vertex(T id, double X, double Y, double Xrad, double Yrad, string type);
+
+	Vertex(T in, double x, double y, double xrad, double yrad, string type);
 	friend class Graph<T>;
 
+	void addEdge(Vertex<T> *dest, double w);
+	bool removeEdgeTo(Vertex<T> *d);
+
 	T getId() const;
-	string getType() const;
 	double getX() const;
 	double getY() const;
-	double getXRad() const;
-	double getYRad() const;
-	vector<Edge<T> > getAdj();
+	double getXrad() const;
+	double getYrad() const;
+	vector<Edge<T>  > getAdj();
+	void setInfo(T info);
+
+	int getDist() const;
 	int getIndegree() const;
 
 	Vertex* path;
+};
 
+
+template <class T>
+struct vertex_greater_than {
+    bool operator()(Vertex<T> * a, Vertex<T> * b) const {
+        return a->getDist() > b->getDist();
+    }
 };
 
 
 template <class T>
 bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
-	d->indegree--;
+	d->indegree--; //adicionado do exercicio 5
 	typename vector<Edge<T> >::iterator it= adj.begin();
 	typename vector<Edge<T> >::iterator ite= adj.end();
 	while (it!=ite) {
@@ -73,9 +83,9 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
 	return false;
 }
 
-
+//atualizado pelo exercício 5
 template <class T>
-Vertex<T>::Vertex(T id, double X, double Y, double Xrad, double Yrad, string type): id(id), type(type), X(X), Y(Y), Xrad(Xrad), Yrad(Yrad), visited(false), processing(false), indegree(0), dist(0) {
+Vertex<T>::Vertex(T in, double x, double y, double xrad, double yrad,string type): info(in), x(x), y(y), xrad(xrad), yrad(yrad), type(type), visited(false), processing(false), indegree(0), dist(0) {
 	path = NULL;
 }
 
@@ -89,7 +99,43 @@ void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
 
 template <class T>
 T Vertex<T>::getId() const {
-	return this->id;
+	return this->info;
+}
+
+template <class T>
+double Vertex<T>::getX() const {
+	return x;
+}
+
+template <class T>
+double Vertex<T>::getY() const {
+	return y;
+}
+
+template <class T>
+double Vertex<T>::getXrad() const {
+	return xrad;
+}
+
+template <class T>
+double Vertex<T>::getYrad() const {
+	return yrad;
+}
+
+template <class T>
+int Vertex<T>::getDist() const {
+	return this->dist;
+}
+
+template <class T>
+vector<Edge<T>  > Vertex<T>::getAdj(){
+	return adj;
+}
+
+
+template <class T>
+void Vertex<T>::setInfo(T info) {
+	this->info = info;
 }
 
 template <class T>
@@ -97,39 +143,12 @@ int Vertex<T>::getIndegree() const {
 	return this->indegree;
 }
 
-template <class T>
-string Vertex<T>::getType() const{
-	return type;
-}
-
-template <class T>
-double Vertex<T>::getX() const {
-	return X;
-}
-
-template <class T>
-double Vertex<T>::getY() const {
-	return Y;
-}
-
-template <class T>
-double Vertex<T>::getXRad() const {
-	return Xrad;
-}
-
-template <class T>
-double Vertex<T>::getYRad() const {
-	return Yrad;
-}
-
-template <class T>
-vector<Edge<T> > Vertex<T>::getAdj(){
-	return adj;
-}
 
 
-/*
+
+/* ================================================================================================
  * Class Edge
+ * ================================================================================================
  */
 template <class T>
 class Edge {
@@ -137,7 +156,7 @@ class Edge {
 	double weight;
 public:
 	Edge(Vertex<T> *d, double w);
-	Vertex<T>* getDest() const;
+	Vertex<T> * getDest();
 	friend class Graph<T>;
 	friend class Vertex<T>;
 };
@@ -146,26 +165,31 @@ template <class T>
 Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w){}
 
 template <class T>
-Vertex<T>* Edge<T>::getDest() const {
+Vertex<T>* Edge<T>::getDest() {
 	return dest;
 }
 
 
 
-/*
+
+
+/* ================================================================================================
  * Class Graph
+ * ================================================================================================
  */
 template <class T>
 class Graph {
-
 	vector<Vertex<T> *> vertexSet;
 	void dfs(Vertex<T> *v, vector<T> &res) const;
+
+	//exercicio 5
 	int numCycles;
 	void dfsVisit(Vertex<T> *v);
 	void dfsVisit();
 	void getPathTo(Vertex<T> *origin, list<T> &res);
+
 public:
-	bool addVertex(T id, double x, double y, double xrad, double yrad, string type);
+	bool addVertex(const T &in, double x, double y, double xrad, double yrad, string type);
 	bool addEdge(const T &sourc, const T &dest, double w);
 	bool removeVertex(const T &in);
 	bool removeEdge(const T &sourc, const T &dest);
@@ -175,15 +199,15 @@ public:
 	vector<Vertex<T> * > getVertexSet() const;
 	int getNumVertex() const;
 
+	//exercicio 5
 	Vertex<T>* getVertex(const T &v) const;
 	void resetIndegrees();
 	vector<Vertex<T>*> getSources() const;
 	int getNumCycles();
-	bool isDAG();
 	vector<T> topologicalOrder();
 	vector<T> getPath(const T &origin, const T &dest);
-
 	void unweightedShortestPath(const T &v);
+	bool isDAG();
 
 };
 
@@ -198,12 +222,24 @@ vector<Vertex<T> * > Graph<T>::getVertexSet() const {
 }
 
 template <class T>
-bool Graph<T>::addVertex(T id, double x, double y, double xrad, double yrad, string type) {
+int Graph<T>::getNumCycles() {
+	numCycles = 0;
+	dfsVisit();
+	return this->numCycles;
+}
+
+template <class T>
+bool Graph<T>::isDAG() {
+	return (getNumCycles() == 0);
+}
+
+template <class T>
+bool Graph<T>::addVertex(const T &in, double x, double y, double xrad, double yrad,string type) {
 	typename vector<Vertex<T>*>::iterator it= vertexSet.begin();
 	typename vector<Vertex<T>*>::iterator ite= vertexSet.end();
 	for (; it!=ite; it++)
-		if ((*it)->id == id) return false;
-	Vertex<T> *v1 = new Vertex<T>(id, x, y, xrad, yrad, type);
+		if ((*it)->info == in) return false;
+	Vertex<T> *v1 = new Vertex<T>(in,x,y,xrad,yrad,type);
 	vertexSet.push_back(v1);
 	return true;
 }
@@ -213,15 +249,15 @@ bool Graph<T>::removeVertex(const T &in) {
 	typename vector<Vertex<T>*>::iterator it= vertexSet.begin();
 	typename vector<Vertex<T>*>::iterator ite= vertexSet.end();
 	for (; it!=ite; it++) {
-		if ((*it)->info == in) { //se encontrar
-			Vertex<T> * v= *it;  //guarda temporario
-			vertexSet.erase(it); //apaga
+		if ((*it)->info == in) {
+			Vertex<T> * v= *it;
+			vertexSet.erase(it);
 			typename vector<Vertex<T>*>::iterator it1= vertexSet.begin();
 			typename vector<Vertex<T>*>::iterator it1e= vertexSet.end();
 			for (; it1!=it1e; it1++) {
 				(*it1)->removeEdgeTo(v);
 			}
-			// decrementa indegree para arestas que se iniciam em "v"
+
 			typename vector<Edge<T> >::iterator itAdj= v->adj.begin();
 			typename vector<Edge<T> >::iterator itAdje= v->adj.end();
 			for (; itAdj!=itAdje; itAdj++) {
@@ -241,15 +277,16 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
 	int found=0;
 	Vertex<T> *vS, *vD;
 	while (found!=2 && it!=ite ) {
-		if ( (*it)->id == sourc )
-		{ vS=*it; found++;}
-		if ( (*it)->id == dest )
-		{ vD=*it; found++;}
+		if ( (*it)->info == sourc )
+			{ vS=*it; found++;}
+		if ( (*it)->info == dest )
+			{ vD=*it; found++;}
 		it ++;
 	}
 	if (found!=2) return false;
 	vD->indegree++;
 	vS->addEdge(vD,w);
+
 	return true;
 }
 
@@ -261,15 +298,21 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 	Vertex<T> *vS, *vD;
 	while (found!=2 && it!=ite ) {
 		if ( (*it)->info == sourc )
-		{ vS=*it; found++;}
+			{ vS=*it; found++;}
 		if ( (*it)->info == dest )
-		{ vD=*it; found++;}
+			{ vD=*it; found++;}
 		it ++;
 	}
-	if (found!=2) return false;
+	if (found!=2)
+		return false;
+
+	vD->indegree--;
 
 	return vS->removeEdgeTo(vD);
 }
+
+
+
 
 template <class T>
 vector<T> Graph<T>::dfs() const {
@@ -280,8 +323,8 @@ vector<T> Graph<T>::dfs() const {
 	vector<T> res;
 	it=vertexSet.begin();
 	for (; it !=ite; it++)
-		if ( (*it)->visited==false )
-			dfs(*it,res);
+	    if ( (*it)->visited==false )
+	    	dfs(*it,res);
 	return res;
 }
 
@@ -292,9 +335,9 @@ void Graph<T>::dfs(Vertex<T> *v,vector<T> &res) const {
 	typename vector<Edge<T> >::iterator it= (v->adj).begin();
 	typename vector<Edge<T> >::iterator ite= (v->adj).end();
 	for (; it !=ite; it++)
-		if ( it->dest->visited == false ){
-			dfs(it->dest, res);
-		}
+	    if ( it->dest->visited == false ){
+	    	dfs(it->dest, res);
+	    }
 }
 
 template <class T>
@@ -356,7 +399,7 @@ int Graph<T>::maxNewChildren(Vertex<T> *v, T &inf) const {
 	return maxChildren;
 }
 
-//****
+
 template <class T>
 Vertex<T>* Graph<T>::getVertex(const T &v) const {
 	for(unsigned int i = 0; i < vertexSet.size(); i++)
@@ -371,7 +414,7 @@ void Graph<T>::resetIndegrees() {
 
 	//actualizar os indegree
 	for(unsigned int i = 0; i < vertexSet.size(); i++) {
-		//percorrer o vetor de Edges, e atualizar indegree
+		//percorrer o vector de Edges, e actualizar indegree
 		for(unsigned int j = 0; j < vertexSet[i]->adj.size(); j++) {
 			vertexSet[i]->adj[j].dest->indegree++;
 		}
@@ -390,19 +433,6 @@ vector<Vertex<T>*> Graph<T>::getSources() const {
 
 
 template <class T>
-int Graph<T>::getNumCycles() {
-	numCycles = 0;
-	dfsVisit();
-	return this->numCycles;
-}
-
-template <class T>
-bool Graph<T>::isDAG() {
-	if (getNumCycles() == 0) return true;
-	return false;
-}
-
-template <class T>
 void Graph<T>::dfsVisit() {
 	typename vector<Vertex<T>*>::const_iterator it= vertexSet.begin();
 	typename vector<Vertex<T>*>::const_iterator ite= vertexSet.end();
@@ -410,33 +440,31 @@ void Graph<T>::dfsVisit() {
 		(*it)->visited=false;
 	it=vertexSet.begin();
 	for (; it !=ite; it++)
-		if ( (*it)->visited==false ){
-			cout << "Being visited" << endl;
-			dfsVisit(*it);
-		}
+	    if ( (*it)->visited==false )
+	    	dfsVisit(*it);
 }
 
 template <class T>
 void Graph<T>::dfsVisit(Vertex<T> *v) {
-	v->processing=true;
+	v->processing = true;
 	v->visited = true;
 	typename vector<Edge<T> >::iterator it= (v->adj).begin();
 	typename vector<Edge<T> >::iterator ite= (v->adj).end();
 	for (; it !=ite; it++) {
 		if ( it->dest->processing == true) numCycles++;
-		if ( it->dest->visited == false ){
-			dfsVisit(it->dest);
-		}
+	    if ( it->dest->visited == false ){
+	    	dfsVisit(it->dest);
+	    }
 	}
-	v->processing=false;
+	v->processing = false;
 }
 
 template<class T>
 vector<T> Graph<T>::topologicalOrder() {
-	//vetor com o resultado da ordenacao
+	//vector com o resultado da ordenacao
 	vector<T> res;
 
-	//verificar se ee um DAG
+	//verificar se é um DAG
 	if( getNumCycles() > 0 ) {
 		cout << "Ordenacao Impossivel!" << endl;
 		return res;
@@ -471,11 +499,38 @@ vector<T> Graph<T>::topologicalOrder() {
 		while( !res.empty() ) res.pop_back();
 	}
 
-	//garantir que os "indegree" ficam atualizados no final
+	//garantir que os "indegree" ficam atualizados ao final
 	this->resetIndegrees();
 
 	return res;
 }
+
+
+
+template<class T>
+vector<T> Graph<T>::getPath(const T &origin, const T &dest){
+
+	list<T> buffer;
+	Vertex<T>* v = getVertex(dest);
+
+	//cout << v->info << " ";
+	buffer.push_front(v->info);
+	while ( v->path != NULL &&  v->path->info != origin) {
+		v = v->path;
+		buffer.push_front(v->info);
+	}
+	if( v->path != NULL )
+		buffer.push_front(v->path->info);
+
+
+	vector<T> res;
+	while( !buffer.empty() ) {
+		res.push_back( buffer.front() );
+		buffer.pop_front();
+	}
+	return res;
+}
+
 
 template<class T>
 void Graph<T>::unweightedShortestPath(const T &s) {
@@ -501,43 +556,7 @@ void Graph<T>::unweightedShortestPath(const T &s) {
 			}
 		}
 	}
-
 }
-
-template<class T>
-void Graph<T>::getPathTo(Vertex<T> *dest, list<T> &res) {
-	res.push_back(dest->info);
-	if( dest->path != NULL )
-		getPathTo(dest->path, res);
-
-}
-
-template<class T>
-vector<T> Graph<T>::getPath(const T &origin, const T &dest){
-	unweightedShortestPath(origin);
-
-	list<T> buffer;
-	Vertex<T>* v = getVertex(dest);
-	cout << "Path to " << v->info << ": ";
-
-	cout << v->info << " ";
-	buffer.push_front(v->info);
-	while ( v->path->info != origin ) {
-		v = v->path;
-		cout << v->info << " ";
-		buffer.push_front(v->info);
-	}
-	buffer.push_front(v->path->info);
-	cout << endl;
-
-	vector<T> res;
-	while( !buffer.empty() ) {
-		res.push_back( buffer.front() );
-		buffer.pop_front();
-	}
-	return res;
-}
-
 
 
 #endif /* GRAPH_H_ */
