@@ -26,13 +26,13 @@ const int INT_INFINITY = INT_MAX;
  */
 template <class T>
 class Vertex {
-	long long int id;
+	T id;
 	string type;
 	double X;
 	double Y;
 	double Xrad;
 	double Yrad;
-	vector<Edge<T>  > adj;
+	vector<Edge<T> > adj;
 	bool visited;
 	bool processing;
 	void addEdge(Vertex<T> *dest, double w);
@@ -41,13 +41,16 @@ class Vertex {
 	int indegree;
 	int dist;
 public:
-	Vertex(long long int id, double X, double Y, double Xrad, double Yrad, string type);
+	Vertex(T id, double X, double Y, double Xrad, double Yrad, string type);
 	friend class Graph<T>;
 
-	long long int getId() const;
+	T getId() const;
 	string getType() const;
 	double getX() const;
 	double getY() const;
+	double getXRad() const;
+	double getYRad() const;
+	vector<Edge<T> > getAdj();
 	int getIndegree() const;
 
 	Vertex* path;
@@ -72,7 +75,7 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
 
 
 template <class T>
-Vertex<T>::Vertex(long long int id, double X, double Y, double Xrad, double Yrad, string type): id(id), type(type), X(X), Y(Y), Xrad(Xrad), Yrad(Yrad), visited(false), processing(false), indegree(0), dist(0) {
+Vertex<T>::Vertex(T id, double X, double Y, double Xrad, double Yrad, string type): id(id), type(type), X(X), Y(Y), Xrad(Xrad), Yrad(Yrad), visited(false), processing(false), indegree(0), dist(0) {
 	path = NULL;
 }
 
@@ -85,7 +88,7 @@ void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
 
 
 template <class T>
-long long int Vertex<T>::getId() const {
+T Vertex<T>::getId() const {
 	return this->id;
 }
 
@@ -109,6 +112,21 @@ double Vertex<T>::getY() const {
 	return Y;
 }
 
+template <class T>
+double Vertex<T>::getXRad() const {
+	return Xrad;
+}
+
+template <class T>
+double Vertex<T>::getYRad() const {
+	return Yrad;
+}
+
+template <class T>
+vector<Edge<T> > Vertex<T>::getAdj(){
+	return adj;
+}
+
 
 /*
  * Class Edge
@@ -119,12 +137,18 @@ class Edge {
 	double weight;
 public:
 	Edge(Vertex<T> *d, double w);
+	Vertex<T>* getDest() const;
 	friend class Graph<T>;
 	friend class Vertex<T>;
 };
 
 template <class T>
 Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w){}
+
+template <class T>
+Vertex<T>* Edge<T>::getDest() const {
+	return dest;
+}
 
 
 
@@ -141,7 +165,7 @@ class Graph {
 	void dfsVisit();
 	void getPathTo(Vertex<T> *origin, list<T> &res);
 public:
-	bool addVertex(long long int id, double x, double y, double xrad, double yrad, string type);
+	bool addVertex(T id, double x, double y, double xrad, double yrad, string type);
 	bool addEdge(const T &sourc, const T &dest, double w);
 	bool removeVertex(const T &in);
 	bool removeEdge(const T &sourc, const T &dest);
@@ -174,7 +198,7 @@ vector<Vertex<T> * > Graph<T>::getVertexSet() const {
 }
 
 template <class T>
-bool Graph<T>::addVertex(long long int id, double x, double y, double xrad, double yrad, string type) {
+bool Graph<T>::addVertex(T id, double x, double y, double xrad, double yrad, string type) {
 	typename vector<Vertex<T>*>::iterator it= vertexSet.begin();
 	typename vector<Vertex<T>*>::iterator ite= vertexSet.end();
 	for (; it!=ite; it++)

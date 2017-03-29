@@ -1,10 +1,10 @@
 #include <cstdio>
-#include "graphviewer.h"
-#include "Graph.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <cmath>
+#include "graphviewer.h"
+#include "Graph.h"
+
 
 class Cidade {
 private:
@@ -20,4 +20,5 @@ public:
 	void readFromFile();
 	int resizeLat(double lat);
 	int resizeLong(double lon);
+	float Haversine(double idNoOrigem, double idNoDestino);
 };
