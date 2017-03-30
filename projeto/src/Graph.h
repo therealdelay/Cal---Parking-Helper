@@ -50,6 +50,7 @@ public:
 	double getY() const;
 	double getXrad() const;
 	double getYrad() const;
+	string getType() const;
 	vector<Edge<T>  > getAdj();
 	void setInfo(T info);
 
@@ -123,6 +124,12 @@ double Vertex<T>::getYrad() const {
 }
 
 template <class T>
+string Vertex<T>::getType() const{
+	return type;
+}
+
+
+template <class T>
 int Vertex<T>::getDist() const {
 	return this->dist;
 }
@@ -143,7 +150,16 @@ int Vertex<T>::getIndegree() const {
 	return this->indegree;
 }
 
-
+template<class T>
+class compareVertexptr
+{
+public:
+	compareVertexptr() {}
+	bool operator() (Vertex<T> * v1, Vertex<T> * v2) const
+	{
+		return v1->getDist() > v2->getDist();
+	}
+};
 
 
 /* ================================================================================================
@@ -207,6 +223,8 @@ public:
 	vector<T> topologicalOrder();
 	vector<T> getPath(const T &origin, const T &dest);
 	void unweightedShortestPath(const T &v);
+	void bellmanFordShortestPath(const T &s);
+	void dijkstraShortestPath(const T &s);
 	bool isDAG();
 
 };
@@ -556,6 +574,66 @@ void Graph<T>::unweightedShortestPath(const T &s) {
 			}
 		}
 	}
+}
+
+
+template<class T>
+void Graph<T>::bellmanFordShortestPath(const T &s) {
+	//cout << "Chegou aqui\n";
+	for(unsigned int i = 0; i < vertexSet.size(); i++) {
+		vertexSet[i]->path = NULL;
+		vertexSet[i]->dist = INT_INFINITY;
+	}
+
+	Vertex<T>* v = getVertex(s);
+	v->dist = 0;
+	queue< Vertex<T>* > q;
+	q.push(v);
+	int c = 0;
+	while( !q.empty() ) {
+		c++;
+		v = q.front(); q.pop();
+		cout << v->adj.size() << endl;
+		for(unsigned int i = 0; i < v->adj.size(); i++) {
+			cout << v->info << endl;
+			Vertex<T>* w = v->adj[i].dest;
+			if( w->dist > v->dist + v->adj[i].weight) {
+				w->dist = v->dist + v->adj[i].weight;
+				//cout << w->dist << endl;
+				w->path = v;
+				q.push(w);
+			}
+		}
+	}
+	cout << c << endl;
+}
+
+template<class T>
+void Graph<T>::dijkstraShortestPath(const T &s) {
+
+	for(unsigned int i = 0; i < vertexSet.size(); i++) {
+		vertexSet[i]->path = NULL;
+		vertexSet[i]->dist = INT_INFINITY;
+	}
+
+	Vertex<T>* v = getVertex(s);
+	v->dist = 0;
+	priority_queue< Vertex<T>*, vector<Vertex<T>*> , compareVertexptr<T> > q;
+	q.push(v);
+	int c = 0;
+	while( !q.empty() ) {
+		c++;
+		v = q.top(); q.pop();
+		for(unsigned int i = 0; i < v->adj.size(); i++) {
+			Vertex<T>* w = v->adj[i].dest;
+			if( w->dist > v->dist + v->adj[i].weight) {
+				w->dist = v->dist + v->adj[i].weight;
+				w->path = v;
+				q.push(w);
+			}
+		}
+	}
+	cout << c << endl;
 }
 
 

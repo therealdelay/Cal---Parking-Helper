@@ -41,7 +41,7 @@ float Cidade::Haversine(double idNoOrigem, double idNoDestino){
 
 void Cidade::readFromFile()
 {
-    GraphViewer *gv = new GraphViewer(600, 600, false);
+    gv = new GraphViewer(600, 600, false);
     gv->createWindow(600, 600);
     gv->defineEdgeColor("blue");
     gv->defineVertexColor("yellow");
@@ -78,13 +78,19 @@ void Cidade::readFromFile()
         linestream >> Xrad;
         std::getline(linestream, data, ';');
         linestream >> Yrad;
-        linestream >> type;
+        linestream.ignore(255, ';');
+        getline(linestream, type);
+        //cout << type << endl;
         total.addVertex(idNo, X, Y, Xrad, Yrad, type);
+        if(type == "Estacionamento")
+        	parkingSpots.push_back(idNo);
         idNo = NULL;
     }
 
     for(int i = 0; i < total.getVertexSet().size(); i++){
         gv->addNode(total.getVertexSet()[i]->getId(), resizeLat(total.getVertexSet()[i]->getX()), resizeLong(-total.getVertexSet()[i]->getY()));
+        //if(total.getVertexSet()[i]->getType()) != "")
+        gv->setVertexLabel(total.getVertexSet()[i]->getId(), total.getVertexSet()[i]->getType());
     }
     inFile.close();
     //Ler o ficheiro arestas.txt
@@ -97,6 +103,7 @@ void Cidade::readFromFile()
     int idAresta=0;
     long long int idNoOrigem=0;
     long long int idNoDestino=0;
+    double weight;
     int counter = 0 ;
     while(std::getline(inFile, line))
     {
@@ -107,9 +114,11 @@ void Cidade::readFromFile()
         linestream >> idNoOrigem;
         std::getline(linestream, data, ';');  // read up-to the first ; (discard ;).
         linestream >> idNoDestino;
-        total.addEdge(idNoOrigem, idNoDestino,Haversine(idNoOrigem, idNoDestino));
+        //cout << Haversine(idNoOrigem, idNoDestino) << endl;
+        total.addEdge(idNoOrigem, idNoDestino,1);//Haversine(idNoOrigem, idNoDestino));
         counter++;
     }
+    cout << counter << endl;
     inFile.close();
     counter = 0;
     for(int i = 0; i < total.getVertexSet().size(); i++){
@@ -119,5 +128,38 @@ void Cidade::readFromFile()
         }
     }
 
+	this->getClosestParkingSpot(1663052161);
     gv->rearrange();
+
+
+}
+
+
+long long int Cidade::getClosestParkingSpot(const long long int &src){
+	total.bellmanFordShortestPath(src);
+	Vertex<long long int> *s = total.getVertex(src);
+	gv->setVertexColor(s->getId(), "red");
+	int minDist = INT_INFINITY;
+	vector<long long int> path;
+	for(unsigned int i = 0; i < parkingSpots.size(); i++){
+		Vertex<long long int> *v = total.getVertex(parkingSpots[i]);
+		if(v == NULL)
+			return -1;
+		cout << v->getDist() << endl;
+		if(v->getDist() < minDist){
+			path = total.getPath(src, parkingSpots[i]);
+			minDist = v->getDist();
+		}
+	}
+	/*
+	if(minDist != INT_INFINITY)
+			for(unsigned int j = 0; j < path.size()-1; j++){
+				Vertex<long long int> *base = total.getVertex(path[j]);
+				for(unsigned int k = 0; k < base->getAdj().size(); k++){
+					if(base->getAdj[k].dest->getId() == path[j+1])
+						gv->setEdgeColor()
+				}
+			}
+			*/
+	return minDist;
 }

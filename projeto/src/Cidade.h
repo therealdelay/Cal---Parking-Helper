@@ -8,8 +8,10 @@
 
 class Cidade {
 private:
+	GraphViewer *gv;
 	Graph<long long int> total;
 	Graph<long long int> parcial;
+	vector<long long int> parkingSpots;
 
 	const static float latmax = 40.86086;
 	const static float latmin = 40.8481;
@@ -21,4 +23,5 @@ public:
 	int resizeLat(double lat);
 	int resizeLong(double lon);
 	float Haversine(double idNoOrigem, double idNoDestino);
+	long long int getClosestParkingSpot(const long long int &src);
 };
