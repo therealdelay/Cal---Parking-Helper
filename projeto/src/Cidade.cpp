@@ -15,20 +15,22 @@ float Cidade::Haversine(double idNoOrigem, double idNoDestino){
     typename vector<Vertex<long long int>*>::iterator it= total.getVertexSet().begin();
     typename vector<Vertex<long long int>*>::iterator ite= total.getVertexSet().end();
     double lat1, lat2, lon1, lon2;
+    bool coord1 = false, coord2 = false;
     for (; it!=ite; it++){
         if ((*it)->getId() == idNoOrigem){
             lat1 = (*it)->getXrad();
             lon1= (*it)->getYrad();
-            break;
+            coord1 = true;
         }
-    }
-    it = total.getVertexSet().begin();
-    for (; it!=ite; it++){
-        if ((*it)->getId() == idNoOrigem){
-            lat2 = (*it)->getXrad();
-            lon2= (*it)->getYrad();
-            break;
+
+        if ((*it)->getId() == idNoDestino){
+        	lat2 = (*it)->getXrad();
+        	lon2= (*it)->getYrad();
+        	coord2 = true;
         }
+
+        if(coord1 && coord2)
+        	break;
     }
     float R = 6371; //raio da terra
     float dLat = lat2-lat1;
@@ -46,7 +48,7 @@ void Cidade::readFromFile()
     gv->defineEdgeColor("blue");
     gv->defineVertexColor("yellow");
 
-    ifstream inFile;
+    ifstream inFile, inFile2;
     //Ler o ficheiro nos.txt
     inFile.open("vertices.txt");
     if (!inFile) {
@@ -66,7 +68,7 @@ void Cidade::readFromFile()
     while(std::getline(inFile, line))
     {
         std::stringstream linestream(line);
-        std::string         data;
+        std::string data;
         string lixo;
 
         linestream >> idNo;
@@ -79,28 +81,36 @@ void Cidade::readFromFile()
         std::getline(linestream, data, ';');
         linestream >> Yrad;
         linestream.ignore(255, ';');
-        getline(linestream, type);
-        //cout << type << endl;
+        getline(linestream, type, ' ');
+        //ISTO POE VERTICES COM E
+        if(type == "")
+        	type = "E";
         total.addVertex(idNo, X, Y, Xrad, Yrad, type);
         if(type == "Estacionamento")
         	parkingSpots.push_back(idNo);
-        idNo = NULL;
     }
 
-    for(int i = 0; i < total.getVertexSet().size(); i++){
+    for(unsigned int i = 0; i < total.getVertexSet().size(); i++){
         gv->addNode(total.getVertexSet()[i]->getId(), resizeLat(total.getVertexSet()[i]->getX()), resizeLong(-total.getVertexSet()[i]->getY()));
-        //if(total.getVertexSet()[i]->getType()) != "")
         gv->setVertexLabel(total.getVertexSet()[i]->getId(), total.getVertexSet()[i]->getType());
     }
     inFile.close();
-    //Ler o ficheiro arestas.txt
 
+    //Ler o ficheiro arestas.txt
     inFile.open("arestas0.txt");
     if (!inFile) {
         cerr << "Unable to open file datafile.txt";
         exit(1);   // call system to stop
     }
-    int idAresta=0;
+    inFile2.open("ruas.txt");
+    if (!inFile2) {
+    	cerr << "Unable to open file datafile.txt";
+    	exit(1);   // call system to stop
+    }
+    long long int prevIdAresta = -1;
+    bool direction = false;
+    string streetName = "noname";
+    long long int idAresta=0;
     long long int idNoOrigem=0;
     long long int idNoDestino=0;
     double weight;
@@ -110,25 +120,61 @@ void Cidade::readFromFile()
         std::stringstream linestream(line);
         std::string data;
         linestream >> idAresta;
+        //TRATAR DE ATUALIZAR AS RUAS
+        if(idAresta != prevIdAresta){
+        	string line2;
+        	std::getline(inFile2, line2);
+        	stringstream linestream2(line2);
+        	linestream2 >> prevIdAresta;
+        	std::getline(linestream2, data, ';');
+        	std::getline(linestream2, streetName, ';');
+        	string dir;
+        	std::getline(linestream2, dir);
+        	if(dir == "False")
+        		direction = false;
+        	else
+        		direction = true;
+        }
         std::getline(linestream, data, ';');  // read up-to the first ; (discard ;).
         linestream >> idNoOrigem;
         std::getline(linestream, data, ';');  // read up-to the first ; (discard ;).
         linestream >> idNoDestino;
-        //cout << Haversine(idNoOrigem, idNoDestino) << endl;
-        total.addEdge(idNoOrigem, idNoDestino,1);//Haversine(idNoOrigem, idNoDestino));
+        total.addEdge(counter,idNoOrigem, idNoDestino,Haversine(idNoOrigem, idNoDestino));
+        gv->addEdge(counter, idNoOrigem, idNoDestino, EdgeType::DIRECTED);
+        //MOSTRAR NOMES
+        //if(streetName != "noname")
+        	//gv->setEdgeLabel(counter, streetName);
+        if(direction){
+        	counter++;
+        	total.addEdge(counter,idNoDestino, idNoOrigem,1);
+        	gv->addEdge(counter, idNoDestino, idNoOrigem, EdgeType::DIRECTED);
+        	//MOSTRAR NOMES
+        	//if(streetName != "noname")
+        		//gv->setEdgeLabel(counter, streetName);
+        }
         counter++;
     }
-    cout << counter << endl;
     inFile.close();
+    inFile2.close();
+    /*
     counter = 0;
-    for(int i = 0; i < total.getVertexSet().size(); i++){
-        for(int j = 0; j < total.getVertexSet()[i]->getAdj().size(); j++){
+    for(unsigned int i = 0; i < total.getVertexSet().size(); i++){
+        for(unsigned int j = 0; j < total.getVertexSet()[i]->getAdj().size(); j++){
+        	cout <<total.getVertexSet()[i]->getAdj()[j].getId() << endl;
             gv->addEdge(counter, total.getVertexSet()[i]->getId(), total.getVertexSet()[i]->getAdj()[j].getDest()->getId(), EdgeType::UNDIRECTED);
             counter++;
         }
     }
+    */
 
-	this->getClosestParkingSpot(1663052161);
+
+    //EXPERIMENTAR DIFERENTES PONTOS
+
+	//this->getClosestParkingSpot(1663052161);
+    //this->getClosestParkingSpot(1662970220);
+    //this->getClosestParkingSpot(1663029440);
+    //this->getClosestParkingSpot(1663052212);
+    this->getClosestParkingSpot(1663052071);
     gv->rearrange();
 
 
@@ -145,21 +191,25 @@ long long int Cidade::getClosestParkingSpot(const long long int &src){
 		Vertex<long long int> *v = total.getVertex(parkingSpots[i]);
 		if(v == NULL)
 			return -1;
-		cout << v->getDist() << endl;
+		//cout << v->getDist() << endl;
 		if(v->getDist() < minDist){
 			path = total.getPath(src, parkingSpots[i]);
 			minDist = v->getDist();
 		}
 	}
-	/*
-	if(minDist != INT_INFINITY)
-			for(unsigned int j = 0; j < path.size()-1; j++){
-				Vertex<long long int> *base = total.getVertex(path[j]);
-				for(unsigned int k = 0; k < base->getAdj().size(); k++){
-					if(base->getAdj[k].dest->getId() == path[j+1])
-						gv->setEdgeColor()
+
+	if(minDist != INT_INFINITY){
+		for(unsigned int j = 0; j < path.size()-1; j++){
+			Vertex<long long int> *base = total.getVertex(path[j]);
+			for(unsigned int k = 0; k < base->getAdj().size(); k++){
+				if(base->getAdj()[k].getDest()->getId() == path[j+1]){
+					//cout << "hello" << endl;
+					gv->setEdgeColor(base->getAdj()[k].getId(), "red");
 				}
 			}
-			*/
+		}
+		gv->setVertexColor(path[path.size()-1], "blue");
+	}
+
 	return minDist;
 }

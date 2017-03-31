@@ -42,7 +42,7 @@ public:
 	Vertex(T in, double x, double y, double xrad, double yrad, string type);
 	friend class Graph<T>;
 
-	void addEdge(Vertex<T> *dest, double w);
+	void addEdge(long long int id,Vertex<T> *dest, double w);
 	bool removeEdgeTo(Vertex<T> *d);
 
 	T getId() const;
@@ -92,8 +92,8 @@ Vertex<T>::Vertex(T in, double x, double y, double xrad, double yrad,string type
 
 
 template <class T>
-void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
-	Edge<T> edgeD(dest,w);
+void Vertex<T>::addEdge(long long int id, Vertex<T> *dest, double w) {
+	Edge<T> edgeD(id,dest,w);
 	adj.push_back(edgeD);
 }
 
@@ -168,17 +168,24 @@ public:
  */
 template <class T>
 class Edge {
+	long long int id;
 	Vertex<T> * dest;
 	double weight;
 public:
-	Edge(Vertex<T> *d, double w);
+	Edge(long long int id, Vertex<T> *d, double w);
+	long long int getId();
 	Vertex<T> * getDest();
 	friend class Graph<T>;
 	friend class Vertex<T>;
 };
 
 template <class T>
-Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w){}
+Edge<T>::Edge(long long int id, Vertex<T> *d, double w): id(id), dest(d), weight(w){}
+
+template <class T>
+long long int Edge<T>::getId(){
+	return id;
+}
 
 template <class T>
 Vertex<T>* Edge<T>::getDest() {
@@ -206,7 +213,7 @@ class Graph {
 
 public:
 	bool addVertex(const T &in, double x, double y, double xrad, double yrad, string type);
-	bool addEdge(const T &sourc, const T &dest, double w);
+	bool addEdge(long long int id,const T &sourc, const T &dest, double w);
 	bool removeVertex(const T &in);
 	bool removeEdge(const T &sourc, const T &dest);
 	vector<T> dfs() const;
@@ -289,7 +296,7 @@ bool Graph<T>::removeVertex(const T &in) {
 }
 
 template <class T>
-bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
+bool Graph<T>::addEdge(long long int id,const T &sourc, const T &dest, double w) {
 	typename vector<Vertex<T>*>::iterator it= vertexSet.begin();
 	typename vector<Vertex<T>*>::iterator ite= vertexSet.end();
 	int found=0;
@@ -303,7 +310,7 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
 	}
 	if (found!=2) return false;
 	vD->indegree++;
-	vS->addEdge(vD,w);
+	vS->addEdge(id,vD,w);
 
 	return true;
 }
@@ -593,9 +600,9 @@ void Graph<T>::bellmanFordShortestPath(const T &s) {
 	while( !q.empty() ) {
 		c++;
 		v = q.front(); q.pop();
-		cout << v->adj.size() << endl;
+		//cout << v->adj.size() << endl;
 		for(unsigned int i = 0; i < v->adj.size(); i++) {
-			cout << v->info << endl;
+			//cout << v->info << endl;
 			Vertex<T>* w = v->adj[i].dest;
 			if( w->dist > v->dist + v->adj[i].weight) {
 				w->dist = v->dist + v->adj[i].weight;
