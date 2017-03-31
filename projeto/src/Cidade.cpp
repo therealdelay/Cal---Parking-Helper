@@ -1,6 +1,11 @@
 #include "Cidade.h"
 using namespace std;
 
+const string Cidade::defaultVertexColor = "yellow";
+const string Cidade::defaultEdgeColor = "blue";
+const string Cidade::pathEdgeColor = "red";
+const string Cidade::srcVertexColor = "red";
+const string Cidade::destVertexColor = "blue";
 
 int Cidade::resizeLat(double lat) {
 	return (600 - (round(600 / (latmax - latmin) * (lat - latmin))));
@@ -83,8 +88,8 @@ void Cidade::readFromFile()
         linestream.ignore(255, ';');
         getline(linestream, type, ' ');
         //ISTO POE VERTICES COM E
-        if(type == "")
-        	type = "E";
+        //if(type == "")
+        	//type = "E";
         total.addVertex(idNo, X, Y, Xrad, Yrad, type);
         if(type == "Estacionamento")
         	parkingSpots.push_back(idNo);
@@ -139,6 +144,7 @@ void Cidade::readFromFile()
         linestream >> idNoOrigem;
         std::getline(linestream, data, ';');  // read up-to the first ; (discard ;).
         linestream >> idNoDestino;
+        //cout << Haversine(idNoOrigem, idNoDestino) << endl;
         total.addEdge(counter,idNoOrigem, idNoDestino,Haversine(idNoOrigem, idNoDestino));
         gv->addEdge(counter, idNoOrigem, idNoDestino, EdgeType::DIRECTED);
         //MOSTRAR NOMES
@@ -174,7 +180,8 @@ void Cidade::readFromFile()
     //this->getClosestParkingSpot(1662970220);
     //this->getClosestParkingSpot(1663029440);
     //this->getClosestParkingSpot(1663052212);
-    this->getClosestParkingSpot(1663052071);
+    //this->getClosestParkingSpot(1663052071);
+    //this->getClosestParkingSpot(1489430296);
     gv->rearrange();
 
 
@@ -182,21 +189,30 @@ void Cidade::readFromFile()
 
 
 long long int Cidade::getClosestParkingSpot(const long long int &src){
+	//VERIFICAR SE A SRC EXISTE
+	Vertex<long long int> *t = total.getVertex(src);
+	if(t == NULL)
+		return -1;
+
+	//LIMPAR VIEWER
+	clearGraphViewer();
+
 	total.bellmanFordShortestPath(src);
 	Vertex<long long int> *s = total.getVertex(src);
 	gv->setVertexColor(s->getId(), "red");
-	int minDist = INT_INFINITY;
-	vector<long long int> path;
+	double minDist = INT_INFINITY;
 	for(unsigned int i = 0; i < parkingSpots.size(); i++){
 		Vertex<long long int> *v = total.getVertex(parkingSpots[i]);
 		if(v == NULL)
 			return -1;
-		//cout << v->getDist() << endl;
+		cout << v->getDist() << endl;
 		if(v->getDist() < minDist){
 			path = total.getPath(src, parkingSpots[i]);
 			minDist = v->getDist();
 		}
 	}
+
+	cout << "Min Dist " << minDist << endl;
 
 	if(minDist != INT_INFINITY){
 		for(unsigned int j = 0; j < path.size()-1; j++){
@@ -211,5 +227,24 @@ long long int Cidade::getClosestParkingSpot(const long long int &src){
 		gv->setVertexColor(path[path.size()-1], "blue");
 	}
 
+	gv->rearrange();
 	return minDist;
+}
+
+
+void Cidade::clearGraphViewer(){
+	if(path.size() == 0)
+		return;
+	gv->setVertexColor(path[0], defaultVertexColor);
+	for(unsigned int i = 0; i < path.size()-1; i++){
+		Vertex<long long int> *base = total.getVertex(path[i]);
+		for(unsigned int j = 0; j < base->getAdj().size(); j++){
+			if(base->getAdj()[j].getDest()->getId() == path[j+1]){
+				//cout << "hello" << endl;
+				gv->setEdgeColor(base->getAdj()[j].getId(), defaultEdgeColor);
+			}
+		}
+	}
+	gv->setVertexColor(path[path.size()-1], defaultVertexColor);
+	gv->rearrange();
 }

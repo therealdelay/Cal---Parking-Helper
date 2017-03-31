@@ -36,7 +36,7 @@ class Vertex {
 	bool visited;
 	bool processing;
 	int indegree;
-	int dist;
+	double dist;
 public:
 
 	Vertex(T in, double x, double y, double xrad, double yrad, string type);
@@ -54,7 +54,7 @@ public:
 	vector<Edge<T>  > getAdj();
 	void setInfo(T info);
 
-	int getDist() const;
+	double getDist() const;
 	int getIndegree() const;
 
 	Vertex* path;
@@ -130,7 +130,7 @@ string Vertex<T>::getType() const{
 
 
 template <class T>
-int Vertex<T>::getDist() const {
+double Vertex<T>::getDist() const {
 	return this->dist;
 }
 
