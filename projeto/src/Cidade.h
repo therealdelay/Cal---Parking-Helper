@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <map>
 #include "graphviewer.h"
 #include "Graph.h"
 
@@ -12,7 +13,9 @@ private:
 	Graph<long long int> total;
 	Graph<long long int> parcial;
 	vector<long long int> parkingSpots;
-	vector<long long int> path;      //Isto e para limpar o trajeto anterior...
+	vector<long long int> gasSpots;
+	vector<long long int> lastPath;      //Isto e para limpar o trajeto anterior...
+	map<string, long long int> spots;
 
 	const static float latmax = 40.86086;
 	const static float latmin = 40.8481;
@@ -20,9 +23,17 @@ private:
 	const static float lonmin = 8.387305;
 	const static string defaultVertexColor;
 	const static string defaultEdgeColor;
+	const static string parkingSpotVertexColor;
 	const static string pathEdgeColor;
 	const static string srcVertexColor;
 	const static string destVertexColor;
+
+	void setPath(vector<long long int> path, string srcColor, string destColor, string edgeColor);
+	void setPath(vector<long long int> path, string vertexColor, string edgeColor);
+	vector<long long int> getPath(const long long int &src, const long long int &dest);
+	long long int getClosestParkingSpot(const long long int &src);
+	long long int getClosestGasStationSpot(const long long int &src);
+	void clearGraphViewer();
 
 public:
 	Cidade(){}
@@ -30,6 +41,6 @@ public:
 	int resizeLat(double lat);
 	int resizeLong(double lon);
 	float Haversine(double idNoOrigem, double idNoDestino);
-	long long int getClosestParkingSpot(const long long int &src);
-	void clearGraphViewer();
+	int getClosestRoute(const long long int &src, const string dest, bool gas);
+
 };

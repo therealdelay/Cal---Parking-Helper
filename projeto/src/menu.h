@@ -10,6 +10,8 @@ using namespace std;
 
 int getOption(int a, int b);
 
+void clearBuffer();
+
 void invalidOption();
 
 bool refillTank();

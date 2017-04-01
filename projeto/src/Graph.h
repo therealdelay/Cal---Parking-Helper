@@ -446,7 +446,6 @@ void Graph<T>::resetIndegrees() {
 	}
 }
 
-
 template<class T>
 vector<Vertex<T>*> Graph<T>::getSources() const {
 	vector< Vertex<T>* > buffer;
@@ -606,13 +605,14 @@ void Graph<T>::bellmanFordShortestPath(const T &s) {
 			Vertex<T>* w = v->adj[i].dest;
 			if( w->dist > v->dist + v->adj[i].weight) {
 				w->dist = v->dist + v->adj[i].weight;
+				//cout << w->info << endl;
 				//cout << w->dist << endl;
 				w->path = v;
 				q.push(w);
 			}
 		}
 	}
-	cout << c << endl;
+	//cout << c << endl;
 }
 
 template<class T>

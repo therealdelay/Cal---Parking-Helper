@@ -13,10 +13,14 @@ int getOption(int a, int b){
 	return c;
 }
 
-void invalidOption(){
-	std::cout << "Invalid option\n";
+
+void clearBuffer(){
 	std::cin.clear();
 	std::cin.ignore(1000, '\n');
+}
+void invalidOption(){
+	std::cout << "Invalid option\n";
+	clearBuffer();
 }
 
 bool refillTank(){
@@ -62,27 +66,43 @@ int mainMenu(Cidade &c){
 		cout << "1 - Closest parking spot\n"
 			 << "2 - Cheapest parking spot\n\n"
 			 << "0 - Exit\n";
+
 		option = getOption(1,2);
+
 		if(option == 0)
 			break;
-		if(option)
+
 		switch(option){
 		case -1:
 			invalidOption();
 			break;
 		case 1:
+		{
+			clearBuffer();
 			long long int id;
+			string dest;
+			cout << "Destination\n> ";
+			std::getline(cin,dest);
 			cout << "Input ID\n> ";
 			cin >> id;
 			if(cin.fail()){
 				invalidOption();
 				break;
 			}
-			c.getClosestParkingSpot(id);
+			bool gas = false;
+			cin.ignore(255, '\n');
+			cout << "Gas(Y/N)\n> ";
+			char choice;
+			cin >> choice;
+			if(choice == 'Y')
+				gas = true;
+			c.getClosestRoute(id, dest, gas);
 			break;
+		}
 		case 2:
 			//cheapestSpot();
-			c.clearGraphViewer();
+			//c.clearGraphViewer();
+			cout << "FUCK" << endl;
 			break;
 		}
 

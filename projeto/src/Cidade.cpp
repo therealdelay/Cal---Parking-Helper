@@ -3,6 +3,7 @@ using namespace std;
 
 const string Cidade::defaultVertexColor = "yellow";
 const string Cidade::defaultEdgeColor = "blue";
+const string Cidade::parkingSpotVertexColor = "green";
 const string Cidade::pathEdgeColor = "red";
 const string Cidade::srcVertexColor = "red";
 const string Cidade::destVertexColor = "blue";
@@ -14,7 +15,6 @@ int Cidade::resizeLat(double lat) {
 int Cidade::resizeLong(double lon) {
 	return (round(600 / (lonmax - lonmin) * (lon - lonmin)));
 }
-
 
 float Cidade::Haversine(double idNoOrigem, double idNoDestino){
     typename vector<Vertex<long long int>*>::iterator it= total.getVertexSet().begin();
@@ -62,7 +62,7 @@ void Cidade::readFromFile()
     }
     std::string   line;
 
-    long long int idNo = NULL;
+    long long int idNo = 0;
     double X=0;
     double Y=0;
     double Xrad = 0;
@@ -86,14 +86,27 @@ void Cidade::readFromFile()
         std::getline(linestream, data, ';');
         linestream >> Yrad;
         linestream.ignore(255, ';');
-        getline(linestream, type, ' ');
+        getline(linestream, type);
+        //cout << type << endl;
+        if(type != ""){
+        	if(type[0] != ' ' && type != "Estacionamento" && type != "Bombas de Gasolina")
+        		spots[type] = idNo;
+        }
         //ISTO POE VERTICES COM E
         //if(type == "")
         	//type = "E";
         total.addVertex(idNo, X, Y, Xrad, Yrad, type);
         if(type == "Estacionamento")
         	parkingSpots.push_back(idNo);
+        if(type == "Bombas de Gasolina")
+        	gasSpots.push_back(idNo);
     }
+
+    /*
+    map<string, long long int>::iterator itera = spots.begin();
+    for(; itera != spots.end(); itera++)
+    	cout << itera->first << "   " << itera->second << endl;
+    	*/
 
     for(unsigned int i = 0; i < total.getVertexSet().size(); i++){
         gv->addNode(total.getVertexSet()[i]->getId(), resizeLat(total.getVertexSet()[i]->getX()), resizeLong(-total.getVertexSet()[i]->getY()));
@@ -150,9 +163,11 @@ void Cidade::readFromFile()
         //MOSTRAR NOMES
         //if(streetName != "noname")
         	//gv->setEdgeLabel(counter, streetName);
+        //MOSTRAR NOMES
+        //gv->setEdgeLabel(counter, streetName);
         if(direction){
         	counter++;
-        	total.addEdge(counter,idNoDestino, idNoOrigem,1);
+        	total.addEdge(counter,idNoDestino, idNoOrigem,Haversine(idNoOrigem, idNoDestino));
         	gv->addEdge(counter, idNoDestino, idNoOrigem, EdgeType::DIRECTED);
         	//MOSTRAR NOMES
         	//if(streetName != "noname")
@@ -162,17 +177,6 @@ void Cidade::readFromFile()
     }
     inFile.close();
     inFile2.close();
-    /*
-    counter = 0;
-    for(unsigned int i = 0; i < total.getVertexSet().size(); i++){
-        for(unsigned int j = 0; j < total.getVertexSet()[i]->getAdj().size(); j++){
-        	cout <<total.getVertexSet()[i]->getAdj()[j].getId() << endl;
-            gv->addEdge(counter, total.getVertexSet()[i]->getId(), total.getVertexSet()[i]->getAdj()[j].getDest()->getId(), EdgeType::UNDIRECTED);
-            counter++;
-        }
-    }
-    */
-
 
     //EXPERIMENTAR DIFERENTES PONTOS
 
@@ -183,10 +187,49 @@ void Cidade::readFromFile()
     //this->getClosestParkingSpot(1663052071);
     //this->getClosestParkingSpot(1489430296);
     gv->rearrange();
-
-
 }
 
+
+void Cidade::setPath(vector<long long int> path, string vertexColor, string edgeColor){
+	for(unsigned int i = 0; i < path.size(); i++){
+		gv->setVertexColor(path[i], vertexColor);
+		Vertex<long long int> *base = total.getVertex(path[i]);
+		for(unsigned int j = 0; j < base->getAdj().size(); j++){
+			if(base->getAdj()[j].getDest()->getId() == path[i+1]){
+				gv->setEdgeColor(base->getAdj()[j].getId(), edgeColor);
+			}
+		}
+	}
+}
+
+void Cidade::setPath(vector<long long int> path, string srcColor, string destColor, string edgeColor){
+	if(path.size() == 0)
+		return;
+	gv->setVertexColor(path[0], srcColor);
+	for(unsigned int i = 0; i < path.size()-1; i++){
+		Vertex<long long int> *base = total.getVertex(path[i]);
+		for(unsigned int j = 0; j < base->getAdj().size(); j++){
+			if(base->getAdj()[j].getDest()->getId() == path[i+1]){
+				gv->setEdgeColor(base->getAdj()[j].getId(), edgeColor);
+			}
+		}
+	}
+	gv->setVertexColor(path[path.size()-1], destColor);
+}
+
+vector<long long int> Cidade::getPath(const long long int &src, const long long int &dest){
+	total.bellmanFordShortestPath(src);
+	//total.dijkstraShortestPath(src);
+	Vertex<long long int> *t = total.getVertex(dest);
+	//cout << "Min dist 2 " << t->getDist() << endl;
+	return total.getPath(src, dest);
+}
+
+void Cidade::clearGraphViewer(){
+	if(lastPath.size() == 0)
+		return;
+	setPath(lastPath, defaultVertexColor, defaultEdgeColor);
+}
 
 long long int Cidade::getClosestParkingSpot(const long long int &src){
 	//VERIFICAR SE A SRC EXISTE
@@ -194,57 +237,109 @@ long long int Cidade::getClosestParkingSpot(const long long int &src){
 	if(t == NULL)
 		return -1;
 
-	//LIMPAR VIEWER
-	clearGraphViewer();
-
 	total.bellmanFordShortestPath(src);
-	Vertex<long long int> *s = total.getVertex(src);
-	gv->setVertexColor(s->getId(), "red");
+
 	double minDist = INT_INFINITY;
+	unsigned int min = 0;
 	for(unsigned int i = 0; i < parkingSpots.size(); i++){
 		Vertex<long long int> *v = total.getVertex(parkingSpots[i]);
 		if(v == NULL)
 			return -1;
-		cout << v->getDist() << endl;
+		//cout << v->getDist() << endl;
 		if(v->getDist() < minDist){
-			path = total.getPath(src, parkingSpots[i]);
+			min = i;
 			minDist = v->getDist();
 		}
 	}
 
-	cout << "Min Dist " << minDist << endl;
+	//cout << "Min Dist1 "<< minDist << endl;
 
-	if(minDist != INT_INFINITY){
-		for(unsigned int j = 0; j < path.size()-1; j++){
-			Vertex<long long int> *base = total.getVertex(path[j]);
-			for(unsigned int k = 0; k < base->getAdj().size(); k++){
-				if(base->getAdj()[k].getDest()->getId() == path[j+1]){
-					//cout << "hello" << endl;
-					gv->setEdgeColor(base->getAdj()[k].getId(), "red");
-				}
-			}
+	if(minDist == INT_INFINITY)
+		return -1;
+	else
+		return parkingSpots[min];
+}
+
+long long int Cidade::getClosestGasStationSpot(const long long int &src){
+	//VERIFICAR SE A SRC EXISTE
+	Vertex<long long int> *t = total.getVertex(src);
+	if(t == NULL)
+		return -1;
+
+	total.bellmanFordShortestPath(src);
+
+	double minDist = INT_INFINITY;
+	unsigned int min = 0;
+	for(unsigned int i = 0; i < gasSpots.size(); i++){
+		Vertex<long long int> *v = total.getVertex(gasSpots[i]);
+		if(v == NULL)
+			return -1;
+		cout << v->getDist() << endl;
+		if(v->getDist() < minDist){
+			min = i;
+			minDist = v->getDist();
 		}
-		gv->setVertexColor(path[path.size()-1], "blue");
 	}
 
-	gv->rearrange();
-	return minDist;
+	cout << "Min Dist1 "<< minDist << endl;
+
+	if(minDist == INT_INFINITY)
+		return -1;
+	else
+		return gasSpots[min];
 }
 
 
-void Cidade::clearGraphViewer(){
-	if(path.size() == 0)
-		return;
-	gv->setVertexColor(path[0], defaultVertexColor);
-	for(unsigned int i = 0; i < path.size()-1; i++){
-		Vertex<long long int> *base = total.getVertex(path[i]);
-		for(unsigned int j = 0; j < base->getAdj().size(); j++){
-			if(base->getAdj()[j].getDest()->getId() == path[j+1]){
-				//cout << "hello" << endl;
-				gv->setEdgeColor(base->getAdj()[j].getId(), defaultEdgeColor);
-			}
-		}
+int Cidade::getClosestRoute(const long long int &src, string dest, bool gas){
+	if(spots.find(dest) == spots.end())
+		return 1;
+	cout << "Chegou aqui\n";
+	//LIMPAR VIEWER
+	clearGraphViewer();
+	vector<long long int> gasPath;
+	long long int gasid;
+	if(gas){
+		gasid = getClosestGasStationSpot(src);
+		cout << gasid << endl;
+		if(gasid == -1)
+			return 1;
+		gasPath= getPath(src, gasid);
 	}
-	gv->setVertexColor(path[path.size()-1], defaultVertexColor);
+	long long int parkingid =  getClosestParkingSpot(spots.at(dest));
+	//vector<long long int> p = getPath(walkPath[walkPath.size()-1], spots.at(dest));
+	//vector<long long int> pr = getPath(spots.at(dest), walkPath[walkPath.size()-1]);
+	vector<long long int> walkPath = getPath(parkingid, spots.at(dest));
+
+	if(walkPath.size() == 1)
+		return 1;
+
+	vector<long long int> drivingPath;
+	if(gas)
+		drivingPath = getPath(gasid, parkingid);
+	else
+		drivingPath = getPath(src, parkingid);
+	if(drivingPath.size() == 1)
+		return 1;
+
+	if(gas){
+		setPath(gasPath, srcVertexColor, "black", "black");
+		setPath(drivingPath, "black", destVertexColor, pathEdgeColor);
+		setPath(walkPath, destVertexColor, parkingSpotVertexColor, "green");
+		lastPath = gasPath;
+		lastPath.pop_back();
+		lastPath.insert(lastPath.end(), drivingPath.begin(), drivingPath.end()-1);
+		lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end()-1);
+	}
+	else{
+		setPath(walkPath, destVertexColor, parkingSpotVertexColor, "green");
+		setPath(drivingPath, srcVertexColor, destVertexColor, pathEdgeColor);
+		lastPath = drivingPath;
+		lastPath.pop_back();
+		lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
+	}
+
 	gv->rearrange();
+	return 0;
 }
+
+
