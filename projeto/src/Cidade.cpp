@@ -342,33 +342,46 @@ int Cidade::getClosestRoute(const long long int &src, string dest, bool gas){
 	return 0;
 }
 
-vector<long long int> Cidade::getCheapestPath(const long long int &src, const long long int &dest){
-	total.unweightedShortestPath(src);
+long long int Cidade::getCheapestParkingSpot(const long long int &src, const long long int &dest) {
+	Vertex<long long int> *t = total.getVertex(dest);
+	if(t == NULL)
+		return -1;
+	total.bellmanFordShortestPath(dest);
+	double minPrice = INT_INFINITY;
+	long long int id = 0;
+	for(unsigned int i = 0; i < parkingSpots.size(); i++){
+		Vertex<long long int> *v = total.getVertex(parkingSpots[i].getId());
+		if(v == NULL)
+			return -1;
+		if((parkingSpots[i].getPrice() < minPrice) && (total.getPath(src,parkingSpots[i].getId()).size() > 1)){
+			minPrice = parkingSpots[i].getPrice();
+			id = parkingSpots[i].getId();
+		}
+	}
+	cout << id << endl;
+	if(minPrice == INT_INFINITY)
+		return -1;
+	else
+		return id;
 }
 
 int Cidade::getCheapestRoute(const long long int &src, string dest, bool gas){
 	if(spots.find(dest) == spots.end())
 		return 1;
-	cout << "Chegou aqui\n";
-	//LIMPAR VIEWER
 	clearGraphViewer();
 	vector<long long int> gasPath;
 	long long int gasid;
 	if(gas){
 		gasid = getClosestGasStationSpot(src);
-		cout << gasid << endl;
 		if(gasid == -1)
 			return 1;
 		gasPath = getPath(src, gasid);
 	}
-	long long int parkingid =  getClosestParkingSpot(spots.at(dest));
-	//vector<long long int> p = getPath(walkPath[walkPath.size()-1], spots.at(dest));
-	//vector<long long int> pr = getPath(spots.at(dest), walkPath[walkPath.size()-1]);
+	long long int parkingid = getCheapestParkingSpot(src,spots.at(dest));
 	vector<long long int> walkPath = getPath(parkingid, spots.at(dest));
 
 	if(walkPath.size() == 1)
 		return 1;
-
 	vector<long long int> drivingPath;
 	if(gas)
 		drivingPath = getPath(gasid, parkingid);
@@ -376,7 +389,6 @@ int Cidade::getCheapestRoute(const long long int &src, string dest, bool gas){
 		drivingPath = getPath(src, parkingid);
 	if(drivingPath.size() == 1)
 		return 1;
-
 	if(gas){
 		setPath(gasPath, srcVertexColor, "black", "black");
 		setPath(drivingPath, "black", destVertexColor, pathEdgeColor);
@@ -393,7 +405,6 @@ int Cidade::getCheapestRoute(const long long int &src, string dest, bool gas){
 		lastPath.pop_back();
 		lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
 	}
-
 	gv->rearrange();
 	return 0;
 }

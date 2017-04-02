@@ -32,8 +32,8 @@ private:
 	void setPath(vector<long long int> path, string srcColor, string destColor, string edgeColor);
 	void setPath(vector<long long int> path, string vertexColor, string edgeColor);
 	vector<long long int> getPath(const long long int &src, const long long int &dest);
-	vector<long long int> getCheapestPath(const long long int &src, const long long int &dest);
 	long long int getClosestParkingSpot(const long long int &src);
+	long long int getCheapestParkingSpot(const long long int &src, const long long int &dest);
 	long long int getClosestGasStationSpot(const long long int &src);
 	void clearGraphViewer();
 
@@ -44,6 +44,6 @@ public:
 	int resizeLong(double lon);
 	float Haversine(double idNoOrigem, double idNoDestino);
 	int getClosestRoute(const long long int &src, const string dest, bool gas);
-	int getCheapestRoute(const long long int &src, string dest, bool gas)
+	int getCheapestRoute(const long long int &src, string dest, bool gas);
 
 };

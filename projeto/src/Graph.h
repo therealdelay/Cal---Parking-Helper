@@ -336,9 +336,6 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 	return vS->removeEdgeTo(vD);
 }
 
-
-
-
 template <class T>
 vector<T> Graph<T>::dfs() const {
 	typename vector<Vertex<T>*>::const_iterator it= vertexSet.begin();
@@ -424,7 +421,6 @@ int Graph<T>::maxNewChildren(Vertex<T> *v, T &inf) const {
 	return maxChildren;
 }
 
-
 template <class T>
 Vertex<T>* Graph<T>::getVertex(const T &v) const {
 	for(unsigned int i = 0; i < vertexSet.size(); i++)
@@ -454,7 +450,6 @@ vector<Vertex<T>*> Graph<T>::getSources() const {
 	}
 	return buffer;
 }
-
 
 template <class T>
 void Graph<T>::dfsVisit() {
@@ -529,8 +524,6 @@ vector<T> Graph<T>::topologicalOrder() {
 	return res;
 }
 
-
-
 template<class T>
 vector<T> Graph<T>::getPath(const T &origin, const T &dest){
 
@@ -554,7 +547,6 @@ vector<T> Graph<T>::getPath(const T &origin, const T &dest){
 	}
 	return res;
 }
-
 
 template<class T>
 void Graph<T>::unweightedShortestPath(const T &s) {
