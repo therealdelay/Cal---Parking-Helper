@@ -5,6 +5,7 @@
 #include <map>
 #include "graphviewer.h"
 #include "Graph.h"
+#include "ParkingSpot.h"
 
 
 class Cidade {
@@ -12,7 +13,7 @@ private:
 	GraphViewer *gv;
 	Graph<long long int> total;
 	Graph<long long int> parcial;
-	vector<long long int> parkingSpots;
+	vector<ParkingSpot> parkingSpots;
 	vector<long long int> gasSpots;
 	vector<long long int> lastPath;      //Isto e para limpar o trajeto anterior...
 	map<string, long long int> spots;
@@ -31,6 +32,7 @@ private:
 	void setPath(vector<long long int> path, string srcColor, string destColor, string edgeColor);
 	void setPath(vector<long long int> path, string vertexColor, string edgeColor);
 	vector<long long int> getPath(const long long int &src, const long long int &dest);
+	vector<long long int> getCheapestPath(const long long int &src, const long long int &dest);
 	long long int getClosestParkingSpot(const long long int &src);
 	long long int getClosestGasStationSpot(const long long int &src);
 	void clearGraphViewer();
@@ -42,5 +44,6 @@ public:
 	int resizeLong(double lon);
 	float Haversine(double idNoOrigem, double idNoDestino);
 	int getClosestRoute(const long long int &src, const string dest, bool gas);
+	int getCheapestRoute(const long long int &src, string dest, bool gas)
 
 };
