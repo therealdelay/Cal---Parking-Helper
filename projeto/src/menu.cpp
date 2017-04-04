@@ -83,6 +83,7 @@ int mainMenu(Cidade &c){
 			string dest;
 			cout << "Destination\n> ";
 			std::getline(cin,dest);
+			dest = removeSpaces(dest);
 			cout << "Input ID\n> ";
 			cin >> id;
 			if(cin.fail()){
@@ -96,6 +97,11 @@ int mainMenu(Cidade &c){
 			cin >> choice;
 			if(choice == 'Y' || choice == 'y')
 				gas = true;
+			cin.ignore(255, '\n');
+			double mDist;
+			cout << "MaxDist\n> ";
+			cin >> mDist;
+			c.setMaxDist(mDist);
 			c.getClosestRoute(id, dest, gas);
 			break;
 		}
@@ -118,6 +124,10 @@ int mainMenu(Cidade &c){
 			cin >> choice;
 			if(choice == 'Y' || choice == 'y')
 				gas = true;
+			//cin.ignore(255, '\n');
+			double mDist;
+			cin >> mDist;
+			c.setMaxDist(mDist);
 			c.getCheapestRoute(id, dest, gas);
 			break;
 		}

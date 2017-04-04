@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <string.h>
 #include "graphviewer.h"
 #include "Graph.h"
 #include "ParkingSpot.h"
@@ -28,10 +29,11 @@ private:
 	const static string pathEdgeColor;
 	const static string srcVertexColor;
 	const static string destVertexColor;
+	static double maxDist;
 
 	void setPath(vector<long long int> path, string srcColor, string destColor, string edgeColor);
 	void setPath(vector<long long int> path, string vertexColor, string edgeColor);
-	vector<long long int> getPath(const long long int &src, const long long int &dest);
+	vector<long long int> getPath(const long long int &src, const long long int &dest, double &dist);
 	long long int getClosestParkingSpot(const long long int &src);
 	long long int getCheapestParkingSpot(const long long int &src, const long long int &dest);
 	long long int getClosestGasStationSpot(const long long int &src);
@@ -39,11 +41,11 @@ private:
 
 public:
 	Cidade(){}
+	void static setMaxDist(double max);
 	void readFromFile();
 	int resizeLat(double lat);
 	int resizeLong(double lon);
 	float Haversine(double idNoOrigem, double idNoDestino);
 	int getClosestRoute(const long long int &src, const string dest, bool gas);
 	int getCheapestRoute(const long long int &src, string dest, bool gas);
-
 };

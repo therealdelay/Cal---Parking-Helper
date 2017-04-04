@@ -4,6 +4,7 @@
 #include <cmath>
 #include <fstream>
 #include "Cidade.h"
+#include "util.h"
 
 using namespace std;
 

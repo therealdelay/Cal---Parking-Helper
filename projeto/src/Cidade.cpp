@@ -7,6 +7,7 @@ const string Cidade::parkingSpotVertexColor = "green";
 const string Cidade::pathEdgeColor = "red";
 const string Cidade::srcVertexColor = "red";
 const string Cidade::destVertexColor = "blue";
+double Cidade::maxDist= 0;
 
 int Cidade::resizeLat(double lat) {
 	return (600 - (round(600 / (latmax - latmin) * (lat - latmin))));
@@ -91,9 +92,6 @@ void Cidade::readFromFile()
 			if(type[0] != ' ' && type != "Estacionamento" && type != "Bombas de Gasolina")
 				spots[type] = idNo;
 		}
-		//ISTO POE VERTICES COM E
-		//if(type == "")
-		//type = "E";
 		total.addVertex(idNo, X, Y, Xrad, Yrad, type);
 		if(type == "Estacionamento") {
 			double price;
@@ -219,10 +217,11 @@ void Cidade::setPath(vector<long long int> path, string srcColor, string destCol
 	gv->setVertexColor(path[path.size()-1], destColor);
 }
 
-vector<long long int> Cidade::getPath(const long long int &src, const long long int &dest){
+vector<long long int> Cidade::getPath(const long long int &src, const long long int &dest, double &dist){
 	total.bellmanFordShortestPath(src);
 	//total.dijkstraShortestPath(src);
 	Vertex<long long int> *t = total.getVertex(dest);
+	dist = t->getDist();
 	//cout << "Min dist 2 " << t->getDist() << endl;
 	return total.getPath(src, dest);
 }
@@ -231,6 +230,10 @@ void Cidade::clearGraphViewer(){
 	if(lastPath.size() == 0)
 		return;
 	setPath(lastPath, defaultVertexColor, defaultEdgeColor);
+}
+
+void Cidade::setMaxDist(double max){
+	maxDist = max;
 }
 
 long long int Cidade::getClosestParkingSpot(const long long int &src){
@@ -291,11 +294,21 @@ long long int Cidade::getClosestGasStationSpot(const long long int &src){
 }
 
 int Cidade::getClosestRoute(const long long int &src, string dest, bool gas){
-	if(spots.find(dest) == spots.end())
+	map<string, long long int>::const_iterator it = spots.begin();
+	for(; it != spots.end(); it++){
+		if(strcasecmp(dest.c_str(), it->first.c_str()) == 0)
+			break;
+	}
+	if(it == spots.end())
 		return 1;
+	cout << it->second << endl;
 	cout << "Chegou aqui\n";
+	double distmp;
+	double distTotal = 0;
+
 	//LIMPAR VIEWER
 	clearGraphViewer();
+
 	vector<long long int> gasPath;
 	long long int gasid;
 	if(gas){
@@ -303,23 +316,30 @@ int Cidade::getClosestRoute(const long long int &src, string dest, bool gas){
 		cout << gasid << endl;
 		if(gasid == -1)
 			return 1;
-		gasPath= getPath(src, gasid);
+		gasPath= getPath(src, gasid, distmp);
+		distTotal += distmp;
 	}
-	long long int parkingid =  getClosestParkingSpot(spots.at(dest));
-	//vector<long long int> p = getPath(walkPath[walkPath.size()-1], spots.at(dest));
-	//vector<long long int> pr = getPath(spots.at(dest), walkPath[walkPath.size()-1]);
-	vector<long long int> walkPath = getPath(parkingid, spots.at(dest));
 
-	if(walkPath.size() == 1)
+	long long int parkingid =  getClosestParkingSpot(it->second);
+	if(parkingid == -1)
 		return 1;
+	vector<long long int> walkPath = getPath(parkingid, it->second,distmp);
+	distTotal += distmp;
 
 	vector<long long int> drivingPath;
 	if(gas)
-		drivingPath = getPath(gasid, parkingid);
+		drivingPath = getPath(gasid, parkingid, distmp);
 	else
-		drivingPath = getPath(src, parkingid);
+		drivingPath = getPath(src, parkingid, distmp);
 	if(drivingPath.size() == 1)
 		return 1;
+	distTotal += distmp;
+
+	if(distTotal > maxDist){
+		cout << "Path " << distTotal << " is too long\n";
+		gv->rearrange();
+		return 1;
+	}
 
 	if(gas){
 		setPath(gasPath, srcVertexColor, "black", "black");
@@ -328,7 +348,7 @@ int Cidade::getClosestRoute(const long long int &src, string dest, bool gas){
 		lastPath = gasPath;
 		lastPath.pop_back();
 		lastPath.insert(lastPath.end(), drivingPath.begin(), drivingPath.end()-1);
-		lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end()-1);
+		lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
 	}
 	else{
 		setPath(walkPath, destVertexColor, parkingSpotVertexColor, "green");
@@ -368,6 +388,8 @@ long long int Cidade::getCheapestParkingSpot(const long long int &src, const lon
 int Cidade::getCheapestRoute(const long long int &src, string dest, bool gas){
 	if(spots.find(dest) == spots.end())
 		return 1;
+	double distmp;
+	double distTotal = 0;
 	clearGraphViewer();
 	vector<long long int> gasPath;
 	long long int gasid;
@@ -375,18 +397,18 @@ int Cidade::getCheapestRoute(const long long int &src, string dest, bool gas){
 		gasid = getClosestGasStationSpot(src);
 		if(gasid == -1)
 			return 1;
-		gasPath = getPath(src, gasid);
+		gasPath = getPath(src, gasid, distmp);
 	}
 	long long int parkingid = getCheapestParkingSpot(src,spots.at(dest));
-	vector<long long int> walkPath = getPath(parkingid, spots.at(dest));
+	vector<long long int> walkPath = getPath(parkingid, spots.at(dest),distmp);
 
 	if(walkPath.size() == 1)
 		return 1;
 	vector<long long int> drivingPath;
 	if(gas)
-		drivingPath = getPath(gasid, parkingid);
+		drivingPath = getPath(gasid, parkingid,distmp);
 	else
-		drivingPath = getPath(src, parkingid);
+		drivingPath = getPath(src, parkingid,distmp);
 	if(drivingPath.size() == 1)
 		return 1;
 	if(gas){
