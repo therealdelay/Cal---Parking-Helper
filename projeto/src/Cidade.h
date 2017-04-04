@@ -17,6 +17,7 @@ private:
 	vector<ParkingSpot> parkingSpots;
 	vector<long long int> gasSpots;
 	vector<long long int> lastPath;      //Isto e para limpar o trajeto anterior...
+	vector<Vertex<int> *> busStops;
 	map<string, long long int> spots;
 
 	const static float latmax = 40.86086;

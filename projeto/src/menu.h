@@ -17,21 +17,8 @@ void invalidOption();
 
 bool refillTank();
 
-void closestSpot();
+void closestSpot(Cidade &c);
 
-void cheapestSpot();
+void cheapestSpot(Cidade &c);
 
 int mainMenu(Cidade &c);
-
-void readVertices();
-
-void readRuas();
-
-/*
-void readArestas(){
-	ifstream i("arestas.txt");
-	char lixo;
-	long long int rid, vsource, vdest;
-
-}
-*/

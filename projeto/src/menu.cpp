@@ -41,22 +41,97 @@ bool refillTank(){
 	}
 }
 
-void closestSpot(){
-	if(refillTank()){
-		//chose the shortest path with a fuel pump in the way
+void closestSpot(Cidade &c){
+	clearBuffer();
+	long long int id;
+	string dest;
+	cout << "Destination\n> ";
+	std::getline(cin,dest);
+	dest = removeSpaces(dest);
+	cout << "Input ID\n> ";
+	cin >> id;
+	if(cin.fail()){
+		invalidOption();
+		return;
 	}
+	bool gas = false;
+	cin.ignore(255, '\n');
+	cout << "Gas(Y/N)\n> ";
+	char choice;
+	cin >> choice;
+	if(cin.fail()){
+		invalidOption();
+		return;
+	}
+
+	if(choice == 'Y' || choice == 'y')
+		gas = true;
+	if(choice == 'Y' || choice == 'y')
+		gas = true;
+	else if (choice == 'N' || choice == 'n')
+		gas = false;
 	else{
-		//chose the shortest path
+		invalidOption();
+		return;
 	}
+
+	cin.ignore(255, '\n');
+	double mDist;
+	cout << "MaxDist\n> ";
+	cin >> mDist;
+	if(cin.fail()){
+		invalidOption();
+		return;
+	}
+	if(mDist <= 0)
+		return;
+	c.setMaxDist(mDist);
+	c.getClosestRoute(id, dest, gas);
+	return;
 }
 
-void cheapestSpot(){
-	if(refillTank()){
-		//chose the cheapest path with a fuel pump in the way
+void cheapestSpot(Cidade &c){
+	clearBuffer();
+	long long int id;
+	string dest;
+	cout << "Destination\n> ";
+	std::getline(cin,dest);
+	cout << "Input ID\n> ";
+	cin >> id;
+	if(cin.fail()){
+		invalidOption();
+		return;
 	}
+	bool gas = false;
+	cin.ignore(255, '\n');
+	cout << "Gas(Y/N)\n> ";
+	char choice;
+	cin >> choice;
+	if(cin.fail()){
+		invalidOption();
+		return;
+	}
+	if(choice == 'Y' || choice == 'y')
+		gas = true;
+	else if (choice == 'N' || choice == 'n')
+		gas = false;
+
 	else{
-		//chose the cheapest path
+		invalidOption();
+		return;
 	}
+
+	cin.ignore(255, '\n');
+	double mDist;
+	cin >> mDist;
+	if(cin.fail()){
+		invalidOption();
+		return;
+	}
+	if(mDist <= 0)
+		return;
+	c.setMaxDist(mDist);
+	c.getCheapestRoute(id, dest, gas);
 }
 
 int mainMenu(Cidade &c){
@@ -78,94 +153,13 @@ int mainMenu(Cidade &c){
 			break;
 		case 1:
 		{
-			clearBuffer();
-			long long int id;
-			string dest;
-			cout << "Destination\n> ";
-			std::getline(cin,dest);
-			dest = removeSpaces(dest);
-			cout << "Input ID\n> ";
-			cin >> id;
-			if(cin.fail()){
-				invalidOption();
-				break;
-			}
-			bool gas = false;
-			cin.ignore(255, '\n');
-			cout << "Gas(Y/N)\n> ";
-			char choice;
-			cin >> choice;
-			if(choice == 'Y' || choice == 'y')
-				gas = true;
-			cin.ignore(255, '\n');
-			double mDist;
-			cout << "MaxDist\n> ";
-			cin >> mDist;
-			c.setMaxDist(mDist);
-			c.getClosestRoute(id, dest, gas);
+			closestSpot(c);
 			break;
 		}
 		case 2:
-			clearBuffer();
-			long long int id;
-			string dest;
-			cout << "Destination\n> ";
-			std::getline(cin,dest);
-			cout << "Input ID\n> ";
-			cin >> id;
-			if(cin.fail()){
-				invalidOption();
-				break;
-			}
-			bool gas = false;
-			cin.ignore(255, '\n');
-			cout << "Gas(Y/N)\n> ";
-			char choice;
-			cin >> choice;
-			if(choice == 'Y' || choice == 'y')
-				gas = true;
-			//cin.ignore(255, '\n');
-			double mDist;
-			cin >> mDist;
-			c.setMaxDist(mDist);
-			c.getCheapestRoute(id, dest, gas);
+			cheapestSpot(c);
 			break;
 		}
-
 	}
 	return 0;
 }
-
-void readVertices(){
-	std::ifstream i("vertices.txt");
-	char lixo;
-	long long int vid;
-	float vlatdeg, vlatrad, vlondeg, vlonrad;
-	while(!i.eof()){
-		i >> vid >> lixo >> vlatdeg >> lixo >> vlondeg >> lixo >> vlatrad >> lixo >> vlonrad;
-		std::cout << vid << std::endl << vlatdeg << std::endl << vlondeg << std::endl << vlatrad << std::endl << vlonrad << std::endl;
-	}
-}
-
-void readRuas(){
-	std::ifstream i("ruas.txt");
-	char lixo;
-	long long int rid;
-	std::string rname, rbool;
-	bool rtwoways;
-	while(!i.eof()){
-		i >> rid >> lixo; getline(i,rname,';');
-		std::getline(i, rbool);
-		rtwoways = (rbool == "False") ? false : true;
-		std::cout << rid << std::endl << rname << std::endl << rtwoways << std::endl;
-	}
-}
-
-/*
-void readArestas(){
-	ifstream i("arestas.txt");
-	char lixo;
-	long long int rid, vsource, vdest;
-
-}
- */

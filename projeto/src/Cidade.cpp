@@ -89,7 +89,7 @@ void Cidade::readFromFile()
 		linestream.ignore(255, ';');
 		getline(linestream, type, ';');
 		if(type != ""){
-			if(type[0] != ' ' && type != "Estacionamento" && type != "Bombas de Gasolina")
+			if(type[0] != ' ' && type != "Estacionamento" && type != "Bombas de Gasolina" && type != "Paragem")
 				spots[type] = idNo;
 		}
 		total.addVertex(idNo, X, Y, Xrad, Yrad, type);
@@ -100,6 +100,10 @@ void Cidade::readFromFile()
 		}
 		if(type == "Bombas de Gasolina"){
 			gasSpots.push_back(idNo);
+		}
+		if(type == "Paragem"){
+			Vertex<int> *v = new Vertex<int>(idNo ,X, Y, Xrad, Yrad, type);
+			busStops.push_back(v);
 		}
 	}
 
@@ -218,7 +222,7 @@ void Cidade::setPath(vector<long long int> path, string srcColor, string destCol
 }
 
 vector<long long int> Cidade::getPath(const long long int &src, const long long int &dest, double &dist){
-	total.bellmanFordShortestPath(src);
+	total.dijkstraShortestPath(src);
 	//total.dijkstraShortestPath(src);
 	Vertex<long long int> *t = total.getVertex(dest);
 	dist = t->getDist();
@@ -241,7 +245,7 @@ long long int Cidade::getClosestParkingSpot(const long long int &src){
 	Vertex<long long int> *t = total.getVertex(src);
 	if(t == NULL)
 		return -1;
-	total.bellmanFordShortestPath(src);
+	total.dijkstraShortestPath(src);
 
 	double minDist = INT_INFINITY;
 	unsigned int min = 0;
@@ -270,7 +274,7 @@ long long int Cidade::getClosestGasStationSpot(const long long int &src){
 	if(t == NULL)
 		return -1;
 
-	total.bellmanFordShortestPath(src);
+	total.dijkstraShortestPath(src);
 
 	double minDist = INT_INFINITY;
 	unsigned int min = 0;
@@ -302,7 +306,6 @@ int Cidade::getClosestRoute(const long long int &src, string dest, bool gas){
 	if(it == spots.end())
 		return 1;
 	cout << it->second << endl;
-	cout << "Chegou aqui\n";
 	double distmp;
 	double distTotal = 0;
 
@@ -366,7 +369,7 @@ long long int Cidade::getCheapestParkingSpot(const long long int &src, const lon
 	Vertex<long long int> *t = total.getVertex(dest);
 	if(t == NULL)
 		return -1;
-	total.bellmanFordShortestPath(dest);
+	total.dijkstraShortestPath(dest);
 	double minPrice = INT_INFINITY;
 	long long int id = 0;
 	for(unsigned int i = 0; i < parkingSpots.size(); i++){

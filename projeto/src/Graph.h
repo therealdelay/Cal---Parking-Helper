@@ -613,26 +613,43 @@ void Graph<T>::dijkstraShortestPath(const T &s) {
 	for(unsigned int i = 0; i < vertexSet.size(); i++) {
 		vertexSet[i]->path = NULL;
 		vertexSet[i]->dist = INT_INFINITY;
+		vertexSet[i]->processing = false;
 	}
 
 	Vertex<T>* v = getVertex(s);
 	v->dist = 0;
-	priority_queue< Vertex<T>*, vector<Vertex<T>*> , compareVertexptr<T> > q;
-	q.push(v);
-	int c = 0;
-	while( !q.empty() ) {
-		c++;
-		v = q.top(); q.pop();
+
+	vector< Vertex<T>* > pq;
+	pq.push_back(v);
+
+	make_heap(pq.begin(), pq.end());
+
+
+	while( !pq.empty() ) {
+
+		v = pq.front();
+		pop_heap(pq.begin(), pq.end());
+		pq.pop_back();
+
 		for(unsigned int i = 0; i < v->adj.size(); i++) {
 			Vertex<T>* w = v->adj[i].dest;
-			if( w->dist > v->dist + v->adj[i].weight) {
+
+			if(v->dist + v->adj[i].weight < w->dist ) {
+
 				w->dist = v->dist + v->adj[i].weight;
 				w->path = v;
-				q.push(w);
+
+				//se já estiver na lista, apenas a actualiza
+				if(!w->processing)
+				{
+					w->processing = true;
+					pq.push_back(w);
+				}
+
+				make_heap (pq.begin(),pq.end(),vertex_greater_than<T>());
 			}
 		}
 	}
-	cout << c << endl;
 }
 
 
