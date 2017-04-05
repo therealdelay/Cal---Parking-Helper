@@ -14,7 +14,7 @@ class Cidade {
 private:
 	GraphViewer *gv;
 	Graph<long long int> total;
-	Graph<long long int> bidirectional;
+	//Graph<long long int> bidirectional;
 	vector<ParkingSpot> parkingSpots;
 	vector<long long int> gasSpots;
 	vector<long long int> lastPath;      //Isto e para limpar o trajeto anterior...
@@ -41,9 +41,9 @@ private:
 	void setPath(vector<long long int> path, string vertexColor, string edgeColor);
 	void setPathWalk(vector<long long int> path, string srcColor, string destColor, string edgeColor);
 	vector<long long int> getPath(const long long int &src, const long long int &dest, double &dist);
-	vector<long long int> getPathWalk(const long long int &src, const long long int &dest, double &dist);
+	//vector<long long int> getPathWalk(const long long int &src, const long long int &dest, double &dist);
 	long long int getClosestParkingSpot(const long long int &src);
-	long long int getClosestParkingSpotDest(const long long int &dest, bool bi);
+	long long int getClosestParkingSpotDest(const long long int &dest);
 	long long int getClosestBusStop(const long long int &src);
 	long long int getClosestBusStopDest(const long long int &dest);
 	long long int getCheapestParkingSpot(const long long int &dest);
