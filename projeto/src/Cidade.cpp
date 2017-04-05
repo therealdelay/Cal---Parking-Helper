@@ -93,6 +93,7 @@ void Cidade::readFromFile()
 				spots[type] = idNo;
 		}
 		total.addVertex(idNo, X, Y, Xrad, Yrad, type);
+		//cout << type << endl;
 		if(type == "Estacionamento") {
 			double price;
 			linestream >> price;
@@ -103,6 +104,7 @@ void Cidade::readFromFile()
 		}
 		if(type == "Paragem"){
 			Vertex<int> *v = new Vertex<int>(idNo ,X, Y, Xrad, Yrad, type);
+			//cout << "Another one\n";
 			busStops.push_back(v);
 		}
 	}
@@ -228,6 +230,64 @@ vector<long long int> Cidade::getPath(const long long int &src, const long long 
 	dist = t->getDist();
 	//cout << "Min dist 2 " << t->getDist() << endl;
 	return total.getPath(src, dest);
+}
+
+vector<long long int> Cidade::getBusPath(const long long int &src, const long long int &dest, double &dist){
+	vector<long long int> path;
+	int sIndex = -1, dIndex = -1;
+	for(unsigned int i = 0; i < busStops.size(); i++){
+		//cout << busStops[i]->getId() << endl;
+		if(src == busStops[i]->getId())
+			sIndex = i;
+		if(dest == busStops[i]->getId())
+			dIndex = i;
+		if(sIndex !=-1 && dIndex !=-1){
+			break;
+		}
+	}
+	cout << sIndex << endl;
+	cout << dIndex << endl;
+
+	if(sIndex == -1 || dIndex == -1)
+		return path;
+
+	cout << "chegou aqui\n";
+	int dir;
+	if(sIndex < dIndex)
+		dir = 1;
+	else
+		dir = -1;
+
+	double distTotal = 0;
+	double distmp ;
+	int i = sIndex+dir;
+	while(true){
+		cout << i << endl;
+		if(dir == 1){
+			if(i > dIndex)
+				break;
+		}
+		else{
+			if(i < dIndex)
+				break;
+		}
+		cout << "src  " << busStops[i-dir]->getId() << "   dest "<< busStops[i]->getId() << endl;
+		vector<long long int> tmp = getPath(busStops[i-dir]->getId(), busStops[i]->getId(), distmp);
+		if(distmp == 0)
+			break;
+		if(path.size() != 0)
+			path.pop_back();
+		path.insert(path.end(), tmp.begin(), tmp.end());
+		distTotal += distmp;
+		i += dir;
+	}
+
+	/*
+	for(unsigned int i = 0; i < path.size(); i++)
+		cout << path[i] << endl;
+		*/
+	setPath(path, destVertexColor, parkingSpotVertexColor, "green");
+	return path;
 }
 
 void Cidade::clearGraphViewer(){

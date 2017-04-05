@@ -47,6 +47,7 @@ public:
 	int resizeLat(double lat);
 	int resizeLong(double lon);
 	float Haversine(double idNoOrigem, double idNoDestino);
+	vector<long long int> getBusPath(const long long int &src, const long long int &dest, double &dist);
 	int getClosestRoute(const long long int &src, const string dest, bool gas);
 	int getCheapestRoute(const long long int &src, string dest, bool gas);
 };
