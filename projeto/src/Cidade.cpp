@@ -10,6 +10,9 @@ const string Cidade::destVertexColor = "blue";
 double Cidade::maxDist= 0;
 double Cidade::mileage= 0;
 double Cidade::busTicket = 1.00;
+unsigned int Cidade::edgeNumber = 0;
+unsigned int Cidade::lastedgeNumber = 0;
+
 
 int Cidade::resizeLat(double lat) {
 	return (600 - (round(600 / (latmax - latmin) * (lat - latmin))));
@@ -95,7 +98,7 @@ void Cidade::readFromFile()
 				spots[type] = idNo;
 		}
 		total.addVertex(idNo, X, Y, Xrad, Yrad, type);
-		//cout << type << endl;
+		bidirectional.addVertex(idNo, X, Y, Xrad, Yrad, type);
 		if(type == "Estacionamento") {
 			double price;
 			linestream >> price;
@@ -106,7 +109,6 @@ void Cidade::readFromFile()
 		}
 		if(type == "Paragem"){
 			Vertex<int> *v = new Vertex<int>(idNo ,X, Y, Xrad, Yrad, type);
-			//cout << "Another one\n";
 			busStops.push_back(v);
 		}
 	}
@@ -142,6 +144,7 @@ void Cidade::readFromFile()
 	long long int idNoDestino=0;
 	double weight;
 	int counter = 0 ;
+	int counter2 = 0;
 	while(std::getline(inFile, line))
 	{
 		std::stringstream linestream(line);
@@ -166,9 +169,12 @@ void Cidade::readFromFile()
 		linestream >> idNoOrigem;
 		std::getline(linestream, data, ';');  // read up-to the first ; (discard ;).
 		linestream >> idNoDestino;
-		//cout << Haversine(idNoOrigem, idNoDestino) << endl;
 		total.addEdge(counter,idNoOrigem, idNoDestino,Haversine(idNoOrigem, idNoDestino));
 		gv->addEdge(counter, idNoOrigem, idNoDestino, EdgeType::DIRECTED);
+		bidirectional.addEdge(counter2,idNoOrigem, idNoDestino,Haversine(idNoOrigem, idNoDestino));
+		counter2++;
+		bidirectional.addEdge(counter2, idNoDestino, idNoOrigem, Haversine(idNoOrigem, idNoDestino));
+		counter2++;
 		//MOSTRAR NOMES
 		//if(streetName != "noname")
 		//gv->setEdgeLabel(counter, streetName);
@@ -184,17 +190,13 @@ void Cidade::readFromFile()
 		}
 		counter++;
 	}
+
+	for(unsigned int l = 0; l < bidirectional.getVertexSet().size(); l++){
+		cout << bidirectional.getVertexSet()[l]->getAdj().size() << endl;
+	}
+	edgeNumber = counter;
 	inFile.close();
 	inFile2.close();
-
-	//EXPERIMENTAR DIFERENTES PONTOS
-
-	//this->getClosestParkingSpot(1663052161);
-	//this->getClosestParkingSpot(1662970220);
-	//this->getClosestParkingSpot(1663029440);
-	//this->getClosestParkingSpot(1663052212);
-	//this->getClosestParkingSpot(1663052071);
-	//this->getClosestParkingSpot(1489430296);
 	gv->rearrange();
 }
 
@@ -208,6 +210,21 @@ void Cidade::setPath(vector<long long int> path, string vertexColor, string edge
 			}
 		}
 	}
+}
+
+void Cidade::setPathWalk(vector<long long int> path, string srcColor, string destColor, string edgeColor){
+	if(path.size() == 0)
+		return;
+	int counter = edgeNumber+1;
+	gv->setVertexColor(path[0], srcColor);
+	for(unsigned int i = 0; i < path.size()-1; i++){
+		gv->addEdge(counter, path[i], path[i+1], EdgeType::UNDIRECTED);
+		gv->setEdgeColor(counter, edgeColor);
+		gv->setEdgeDashed(counter, true);
+		counter++;
+	}
+	gv->setVertexColor(path[path.size()-1], destColor);
+	lastedgeNumber = counter;
 }
 
 void Cidade::setPath(vector<long long int> path, string srcColor, string destColor, string edgeColor){
@@ -227,11 +244,16 @@ void Cidade::setPath(vector<long long int> path, string srcColor, string destCol
 
 vector<long long int> Cidade::getPath(const long long int &src, const long long int &dest, double &dist){
 	total.dijkstraShortestPath(src);
-	//total.dijkstraShortestPath(src);
 	Vertex<long long int> *t = total.getVertex(dest);
 	dist = t->getDist();
-	//cout << "Min dist 2 " << t->getDist() << endl;
 	return total.getPath(src, dest);
+}
+
+vector<long long int> Cidade::getPathWalk(const long long int &src, const long long int &dest, double &dist){
+	bidirectional.dijkstraShortestPath(src);
+	Vertex<long long int> *t = bidirectional.getVertex(dest);
+	dist = t->getDist();
+	return bidirectional.getPath(src, dest);
 }
 
 vector<long long int> Cidade::getBusPath(const long long int &src, const long long int &dest, double &dist){
@@ -296,6 +318,8 @@ void Cidade::clearGraphViewer(){
 	if(lastPath.size() == 0)
 		return;
 	setPath(lastPath, defaultVertexColor, defaultEdgeColor);
+	for(unsigned int i = lastedgeNumber; i > edgeNumber; i--)
+		gv->removeEdge(i);
 }
 
 void Cidade::setMaxDist(double max){
@@ -306,15 +330,23 @@ void Cidade::setMileage(double mil) {
 	mileage = mil;
 }
 
-long long int Cidade::getClosestParkingSpot(const long long int &dest){
+long long int Cidade::getClosestParkingSpotDest(const long long int &dest, bool bi){
 	//VERIFICAR SE A SRC EXISTE
-	Vertex<long long int> *d = total.getVertex(dest);
+	Vertex<long long int> *d;
+	if(bi)
+		d = bidirectional.getVertex(dest);
+	else
+		d = total.getVertex(dest);
 	if(d == NULL)
 		return -1;
 	double minDist = INT_INFINITY;
 	unsigned int min = 0;
 	for(unsigned int i = 0; i < parkingSpots.size(); i++){
-		total.dijkstraShortestPath(parkingSpots[i].getId());
+		if(bi)
+			bidirectional.dijkstraShortestPath(parkingSpots[i].getId());
+		else
+			total.dijkstraShortestPath(parkingSpots[i].getId());
+		cout << d->getDist() << endl;
 		if(d->getDist() < minDist){
 			min = i;
 			minDist = d->getDist();
@@ -326,8 +358,60 @@ long long int Cidade::getClosestParkingSpot(const long long int &dest){
 		return parkingSpots[min].getId();
 }
 
+long long int Cidade::getClosestParkingSpot(const long long int &src){
+	//VERIFICAR SE A SRC EXISTE
+	Vertex<long long int> *t = total.getVertex(src);
+	if(t == NULL)
+		return -1;
+	total.dijkstraShortestPath(src);
 
-long long int Cidade::getClosestBusStop(const long long int &dest) {
+	double minDist = INT_INFINITY;
+	unsigned int min = 0;
+	for(unsigned int i = 0; i < parkingSpots.size(); i++){
+		Vertex<long long int> *v = total.getVertex(parkingSpots[i].getId());
+		if(v == NULL)
+			return -1;
+		//cout << v->getDist() << endl;
+		if(v->getDist() < minDist){
+			min = i;
+			minDist = v->getDist();
+		}
+	}
+
+	//cout << "Min Dist1 "<< minDist << endl;
+
+	if(minDist == INT_INFINITY)
+		return -1;
+	else
+		return parkingSpots[min].getId();
+}
+
+long long int Cidade::getClosestBusStop(const long long int &src) {
+	//VERIFICAR SE A SRC EXISTE
+	Vertex<long long int> *t = total.getVertex(src);
+	if(t == NULL)
+		return -1;
+
+	total.dijkstraShortestPath(src);
+
+	double minDist = INT_INFINITY;
+	unsigned int min = 0;
+	for(unsigned int i = 0; i < busStops.size(); i++){
+		//Vertex<long long int> *v = total.getVertex(gasSpots[i]);
+		cout << busStops[i]->getDist() << endl;
+		if(busStops[i]->getDist() < minDist){
+			min = i;
+			minDist = busStops[i]->getDist();
+		}
+	}
+
+	if(minDist == INT_INFINITY)
+		return -1;
+	else
+		return busStops[min]->getId();
+}
+
+long long int Cidade::getClosestBusStopDest(const long long int &dest){
 	//VERIFICAR SE A SRC EXISTE
 	Vertex<long long int> *d = total.getVertex(dest);
 	if(d == NULL)
@@ -385,7 +469,7 @@ int Cidade::getClosestRoute(const long long int &src, string dest, bool gas){
 	vector<long long int> gasPath;
 	long long int gasid;
 
-	long long int parkingid =  getClosestParkingSpot(it->second);
+	long long int parkingid = getClosestParkingSpotDest(it->second, true);
 	if(parkingid == -1)
 		return 1;
 
@@ -398,7 +482,7 @@ int Cidade::getClosestRoute(const long long int &src, string dest, bool gas){
 		distTotal += distmp;
 	}
 
-	vector<long long int> walkPath = getPath(parkingid, it->second,distmp);
+	vector<long long int> walkPath = getPathWalk(parkingid, it->second,distmp);
 	distTotal += distmp;
 
 	vector<long long int> drivingPath;
@@ -419,18 +503,20 @@ int Cidade::getClosestRoute(const long long int &src, string dest, bool gas){
 	if(gas){
 		setPath(gasPath, srcVertexColor, "black", "black");
 		setPath(drivingPath, "black", destVertexColor, pathEdgeColor);
-		setPath(walkPath, destVertexColor, parkingSpotVertexColor, "green");
+		//setPath(walkPath, destVertexColor, parkingSpotVertexColor, "green");
+		setPathWalk(walkPath, destVertexColor, parkingSpotVertexColor, "green");
 		lastPath = gasPath;
 		lastPath.pop_back();
 		lastPath.insert(lastPath.end(), drivingPath.begin(), drivingPath.end()-1);
-		lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
+		//lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
 	}
 	else{
-		setPath(walkPath, destVertexColor, parkingSpotVertexColor, "green");
+		setPathWalk(walkPath, destVertexColor, parkingSpotVertexColor, "green");
+		//setPath(walkPath, destVertexColor, parkingSpotVertexColor, "green");
 		setPath(drivingPath, srcVertexColor, destVertexColor, pathEdgeColor);
 		lastPath = drivingPath;
-		lastPath.pop_back();
-		lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
+		//lastPath.pop_back();
+		//lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
 	}
 
 	gv->rearrange();
@@ -476,13 +562,14 @@ int Cidade::getCheapestRoute(const long long int &src, string dest, bool gas){
         gasPath = getPath(src, gasid, distmp);
     }*/
 	vector<long long int> drivingPath;
+	vector<long long int> drivingPathBus;
 	vector<long long int> busPath;
 	vector<long long int> finalPath;
 	vector<long long int> walkPath;
 	vector<long long int> walkPath2;
 
 	//only car
-	long long int parkingid = getCheapestParkingSpot(src);
+	long long int parkingid = getCheapestParkingSpot(spots.at(dest));
 	drivingPath = getPath(src, parkingid,distmp);
 	if(walkPath.size() == 1)
 		return 1;
@@ -495,29 +582,32 @@ int Cidade::getCheapestRoute(const long long int &src, string dest, bool gas){
 	//busPath = getBusPath(src,spots.at(dest),distbus);
 	//}
 	double distbuspark;
-	long long int busparking = getClosestParkingSpot(src);
+	long long int busrc = getClosestBusStop(src);
+	long long int busparking = getClosestParkingSpotDest(busrc, true);
+
 	vector<long long int> busParkingPath = getPath(src,busparking, distbuspark);
 	if(drivingPath.size() == 1)
 		return 1;
-	if((distmp*mileage) > (busTicket+mileage*distbuspark)){ //autocarro
+
+	//if(true) ///distmp*mileage) > (busTicket+mileage*distbuspark)){ //autocarro
 		finalPath = busParkingPath;
-		long long int busrc = getClosestBusStop(parkingid);
 		double distmp2;
 		walkPath = getPath(busparking,busrc,distmp2);
-		long long int busdest = getClosestBusStop(spots.at(dest));
+		long long int busdest = getClosestBusStopDest(spots.at(dest));
 		busPath = getBusPath(busrc,busdest,distbus);
 		double distmp3;
 		walkPath2 = getPath(busdest,spots.at(dest),distmp3);
 
-		setPath(walkPath, destVertexColor, parkingSpotVertexColor, "green");
 		setPath(finalPath, srcVertexColor, destVertexColor, pathEdgeColor);
-		setPath(busPath, destVertexColor, "orange", "orange");
-		setPath(walkPath2, "orange", "green", "green");
+		setPath(walkPath, destVertexColor, "green", "green");
+		setPath(busPath, "green", "orange", "orange");
+		setPath(walkPath2, "orange", "cyan", "green");
 		walkPath.insert(walkPath.end(),finalPath.begin(), finalPath.end()-1);
 		walkPath.insert(walkPath.end(),busPath.begin(), busPath.end()-1);
 		walkPath.insert(walkPath.end(), walkPath2.begin(), walkPath2.end());
 		lastPath = walkPath;
-	}
+	//}
+/*
 	else { //carro
 		walkPath = getPath(parkingid, spots.at(dest),distmp);
 		setPath(walkPath, destVertexColor, parkingSpotVertexColor, "green");
@@ -526,6 +616,7 @@ int Cidade::getCheapestRoute(const long long int &src, string dest, bool gas){
 		lastPath.pop_back();
 		lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
 	}
+	*/
 	/*if(gas){
 		setPath(gasPath, srcVertexColor, "black", "black");
 		setPath(finalPath, "black", destVertexColor, pathEdgeColor);
