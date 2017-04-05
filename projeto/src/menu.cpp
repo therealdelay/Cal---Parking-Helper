@@ -42,7 +42,7 @@ bool refillTank(){
 }
 
 void closestSpot(Cidade &c){
-	/*
+
 	clearBuffer();
 	long long int id;
 	string dest;
@@ -87,12 +87,12 @@ void closestSpot(Cidade &c){
 	if(mDist <= 0)
 		return;
 	c.setMaxDist(mDist);
-	//c.getClosestRoute(id, dest, gas);
-	*/
+	c.getClosestRoute(id, dest, gas);
+/*
 	cout << "Hello" << endl;
 	double dist;
 	//vector<long long int> path = c.getBusPath(16,88,dist);
-	vector<long long int> path = c.getBusPath(492,16,dist);
+	vector<long long int> path = c.getBusPath(492,16,dist);*/
 	return;
 }
 
@@ -129,6 +129,7 @@ void cheapestSpot(Cidade &c){
 
 	cin.ignore(255, '\n');
 	double mDist;
+	cout << "MaxDist\n> ";
 	cin >> mDist;
 	if(cin.fail()){
 		invalidOption();
@@ -137,6 +138,16 @@ void cheapestSpot(Cidade &c){
 	if(mDist <= 0)
 		return;
 	c.setMaxDist(mDist);
+	double mileage;
+	cout << "L/km\n> ";
+	cin >> mileage;
+	if(cin.fail()){
+		invalidOption();
+		return;
+	}
+	if(mileage <= 0)
+		return;
+	c.setMileage(mileage);
 	c.getCheapestRoute(id, dest, gas);
 }
 

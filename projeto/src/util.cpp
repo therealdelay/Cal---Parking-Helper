@@ -27,3 +27,15 @@ string removeSpaces(string s) {
 
 	return sf;
 }
+
+int compareNames(string a, string b){
+	if(a.size() != b.size())
+		return 1;
+	for(int i = 0; i < a.size(); i++){
+		a[i] = toupper(a[i]);
+		b[i] = toupper(b[i]);
+		if(a[i] != b[i])
+			return 1;
+	}
+	return 0;
+}
