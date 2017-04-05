@@ -9,17 +9,20 @@
 #include "util.h"
 #include "ParkingSpot.h"
 
-
+/**
+ * Class Cidade keeps information about the city, in particular it's streets, vertices, parking spots, gas spots and bus stops.
+ * It also deals with everything related to finding a path from a place to another, chosen by the user. It is possible to choose
+ * between the closest path and the cheapest path. Furthermore, it also paints on the screen the graphic, using the GraphicViewer.
+ */
 class Cidade {
 private:
-	GraphViewer *gv;
-	Graph<long long int> total;
-	//Graph<long long int> bidirectional;
-	vector<ParkingSpot> parkingSpots;
-	vector<long long int> gasSpots;
-	vector<long long int> lastPath;      //Isto e para limpar o trajeto anterior...
-	vector<Vertex<int> *> busStops;
-	map<string, long long int> spots;
+	GraphViewer *gv; ///< The GraphicViewer to draw the graph
+	Graph<long long int> total; ///< Keeps the graph with the information about all the streets and vertices
+	vector<ParkingSpot> parkingSpots; ///< Keeps all the parking spots of the map
+	vector<long long int> gasSpots; ///< Keeps all the petrol Stations of the map
+	vector<long long int> lastPath; ///< Serves to delete the last painted path on the map
+	vector<Vertex<int> *> busStops; ///< Keeps all the bus stops of the map
+	map<string, long long int> spots; ///<
 
 	const static float latmax = 40.86086;
 	const static float latmin = 40.8481;

@@ -102,6 +102,7 @@ void cheapestSpot(Cidade &c){
 	string dest;
 	cout << "Destination\n> ";
 	std::getline(cin,dest);
+	dest = removeSpaces(dest);
 	cout << "Input ID\n> ";
 	cin >> id;
 	if(cin.fail()){
@@ -126,7 +127,6 @@ void cheapestSpot(Cidade &c){
 		invalidOption();
 		return;
 	}
-
 	cin.ignore(255, '\n');
 	double mDist;
 	cout << "MaxDist\n> ";
