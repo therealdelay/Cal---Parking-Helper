@@ -17,12 +17,12 @@
 class Cidade {
 private:
 	GraphViewer *gv; ///< The GraphicViewer to draw the graph
-	Graph<long long int> total; ///< Keeps the graph with the information about all the streets and vertices
+	Graph<int> total; ///< Keeps the graph with the information about all the streets and vertices
 	vector<ParkingSpot> parkingSpots; ///< Keeps all the parking spots of the map
-	vector<long long int> gasSpots; ///< Keeps all the petrol Stations of the map
-	vector<long long int> lastPath; ///< Serves to delete the last painted path on the map
+	vector<int> gasSpots; ///< Keeps all the petrol Stations of the map
+	vector<int> lastPath; ///< Serves to delete the last painted path on the map
 	vector<Vertex<int> *> busStops; ///< Keeps all the bus stops of the map
-	map<string, long long int> spots; ///<
+	map<string, int> spots; ///<
 
 	const static float latmax = 40.86086;
 	const static float latmin = 40.8481;
@@ -30,27 +30,31 @@ private:
 	const static float lonmin = 8.387305;
 	const static string defaultVertexColor;
 	const static string defaultEdgeColor;
-	const static string parkingSpotVertexColor;
-	const static string pathEdgeColor;
 	const static string srcVertexColor;
 	const static string destVertexColor;
+	const static string parkingSpotVertexColor;
+	const static string busStopVertexColor;
+	const static string gasStationVertexColor;
+	const static string drivingPathEdgeColor;
+	const static string gasPathEdgeColor;
+	const static string walkPathEdgeColor;
+	const static string busPathEdgeColor;
 	static double maxDist;
 	static double mileage;
 	static double busTicket;
 	static unsigned int edgeNumber;
 	static unsigned int lastedgeNumber;
 
-	void setPath(vector<long long int> path, string srcColor, string destColor, string edgeColor);
-	void setPath(vector<long long int> path, string vertexColor, string edgeColor);
-	void setPathWalk(vector<long long int> path, string srcColor, string destColor, string edgeColor);
-	vector<long long int> getPath(const long long int &src, const long long int &dest, double &dist);
-	//vector<long long int> getPathWalk(const long long int &src, const long long int &dest, double &dist);
-	long long int getClosestParkingSpot(const long long int &src);
-	long long int getClosestParkingSpotDest(const long long int &dest);
-	long long int getClosestBusStop(const long long int &src);
-	long long int getClosestBusStopDest(const long long int &dest);
-	long long int getCheapestParkingSpot(const long long int &dest);
-	long long int getClosestGasStationSpot(const long long int &dest);
+	void setPath(vector<int> path, string srcColor, string destColor, string edgeColor);
+	void setPath(vector<int> path, string vertexColor, string edgeColor);
+	void setPathWalk(vector<int> path, string srcColor, string destColor, string edgeColor);
+	vector<int> getPath(const int &src, const int &dest, double &dist);
+	int getClosestParkingSpot(const int &src);
+	int getClosestParkingSpotDest(const int &dest);
+	int getClosestBusStop(const int &src);
+	int getClosestBusStopDest(const int &dest);
+	int getCheapestParkingSpotDest(const int &dest);
+	int getClosestGasStationSpot(const int &dest);
 	void clearGraphViewer();
 
 public:
@@ -61,7 +65,7 @@ public:
 	int resizeLat(double lat);
 	int resizeLong(double lon);
 	float Haversine(double idNoOrigem, double idNoDestino);
-	vector<long long int> getBusPath(const long long int &src, const long long int &dest, double &dist);
-	int getClosestRoute(const long long int &src, const string dest, bool gas);
-	int getCheapestRoute(const long long int &src, string dest, bool gas);
+	vector<int> getBusPath(const int &src, const int &dest, double &dist);
+	int getClosestRoute(const int &src, const string dest, bool gas);
+	int getCheapestRoute(const int &src, string dest, bool gas);
 };

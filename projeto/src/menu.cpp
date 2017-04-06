@@ -42,7 +42,6 @@ bool refillTank(){
 }
 
 void closestSpot(Cidade &c){
-
 	clearBuffer();
 	long long int id;
 	string dest;
@@ -88,11 +87,6 @@ void closestSpot(Cidade &c){
 		return;
 	c.setMaxDist(mDist);
 	c.getClosestRoute(id, dest, gas);
-/*
-	cout << "Hello" << endl;
-	double dist;
-	//vector<long long int> path = c.getBusPath(16,88,dist);
-	vector<long long int> path = c.getBusPath(492,16,dist);*/
 	return;
 }
 
