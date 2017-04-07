@@ -635,7 +635,6 @@ void Graph<T>::dijkstraShortestPath(const T &s) {
 			Vertex<T>* w = v->adj[i].dest;
 
 			if(v->dist + v->adj[i].weight < w->dist ) {
-
 				w->dist = v->dist + v->adj[i].weight;
 				w->path = v;
 

@@ -23,24 +23,6 @@ void invalidOption(){
 	clearBuffer();
 }
 
-bool refillTank(){
-	std::string s;
-	std::cout << "Do you want to refill your tank in the way?(Y/N)\n> ";
-	std::cin >> s;
-	for(unsigned int i = 0; i < s.size(); i++){
-		s[i] = toupper(s[i]);
-	}
-
-	if(s == "Y" || s == "YES")
-		return true;
-	else if(s == "N" || s == "NO")
-		return false;
-	else{
-		invalidOption();
-		refillTank();
-	}
-}
-
 void closestSpot(Cidade &c){
 	clearBuffer();
 	long long int id;
@@ -145,7 +127,7 @@ void cheapestSpot(Cidade &c){
 	c.getCheapestRoute(id, dest, gas);
 }
 
-int mainMenu(Cidade &c){
+void mainMenu(Cidade &c){
 	int option;
 	while(true){
 		cout << "Park your car!\n\n\n";
@@ -172,5 +154,5 @@ int mainMenu(Cidade &c){
 			break;
 		}
 	}
-	return 0;
+	return;
 }
