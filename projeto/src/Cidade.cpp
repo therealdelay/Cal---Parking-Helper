@@ -69,8 +69,8 @@ void Cidade::readFromFile()
 {
 	gv = new GraphViewer(600, 600, false);
 	gv->createWindow(600, 600);
-	gv->defineEdgeColor("blue");
-	gv->defineVertexColor("yellow");
+	gv->defineEdgeColor(defaultEdgeColor);
+	gv->defineVertexColor(defaultVertexColor);
 
 	ifstream inFile;
 	//Ler o ficheiro nos.txt
@@ -119,27 +119,17 @@ void Cidade::readFromFile()
 		if(type == "Bombas de Gasolina"){
 			gasSpots.push_back(idNo);
 		}
-		if(type == "Paragem"){
-			Vertex<int> *v = new Vertex<int>(idNo ,X, Y, Xrad, Yrad, type);
-			busStops.push_back(v);
-		}
 	}
-	//ISTO VAI TER QUE SER ELIMINADO
-	busStops.clear();
+
 	int in[] = { 492,290,276,45,350,370,88,105,113,122,450,469,439,16,407,158,168,177,226,266,245,320 };
 	for(unsigned int l = 0; l < 22; l++){
 		Vertex<int> *v = total.getVertex(in[l]);
 		busStops.push_back(v);
 	}
-	//
 
 	for(unsigned int i = 0; i < total.getVertexSet().size(); i++){
 		gv->addNode(total.getVertexSet()[i]->getId(), resizeLat(total.getVertexSet()[i]->getX()), resizeLong(-total.getVertexSet()[i]->getY()));
-		stringstream ss;
-		ss << total.getVertexSet()[i]->getType();
-		ss << " ";
-		ss << total.getVertexSet()[i]->getId();
-		gv->setVertexLabel(total.getVertexSet()[i]->getId(), ss.str());//total.getVertexSet()[i]->getType());
+		gv->setVertexLabel(total.getVertexSet()[i]->getId(), total.getVertexSet()[i]->getType());
 	}
 	inFile.close();
 
@@ -173,12 +163,6 @@ void Cidade::readFromFile()
 	edgeNumber = counter;
 	lastedgeNumber = edgeNumber+1;
 	inFile.close();
-	//ISTO VAI TER QUE SER ELIMINADO
-	double dist;
-	vector<int> path = getBusPath(492,320,dist);
-	setPath(path, "green", "orange", "orange");
-	lastPath = path;
-	//
 	gv->rearrange();
 }
 
@@ -525,15 +509,7 @@ int Cidade::getCheapestRoute(const int &src, string dest, bool gas){
 			double distmp2;
 			walkPath = getPath(busparking,busrc,distmp2);
 			int busdest = getClosestBusStopDest(it->second);
-			/*
-			cout << "Fonte " << busrc << endl;
-			cout << "Dest " << busdest << endl;
-			*/
 			busPath = getBusPath(busrc,busdest,distbus);
-			/*
-			cout << busPath.size() << endl;
-			cout << "depois" << endl;
-			*/
 			double distmp3;
 			walkPath2 = getPath(busdest,it->second,distmp3);
 
@@ -569,24 +545,26 @@ int Cidade::getCheapestRoute(const int &src, string dest, bool gas){
 			setPath(gasPath, srcVertexColor, gasStationVertexColor, gasPathEdgeColor);
 			setPath(finalPath, gasStationVertexColor, parkingSpotVertexColor, drivingPathEdgeColor);
 			setPathWalk(walkPath,parkingSpotVertexColor, destVertexColor, "walkPathEdgeColor");
-			setPathWalk(busPath, "destVertexColor", "busStopVertexColor", "busPathEdgeColor");
-			setPathWalk(walkPath2, "busStopVertexColor", "cyan", "walkPathEdgeColor");
+			setPathWalk(busPath, destVertexColor, busStopVertexColor, busPathEdgeColor);
+			setPathWalk(walkPath2, busStopVertexColor, "cyan", walkPathEdgeColor);
+			lastPath = gasPath;
+			lastPath.pop_back();
 			walkPath.insert(walkPath.end(),finalPath.begin(), finalPath.end()-1);
 			walkPath.insert(walkPath.end(),busPath.begin(), busPath.end()-1);
 			walkPath.insert(walkPath.end(), walkPath2.begin(), walkPath2.end());
-			lastPath = walkPath;
+			lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
 		}
 		else { //carro
-			walkPath = getPath(parkingid, spots.at(dest),distmp);
+			walkPath = getPath(parkingid, it->second,distmp);
 			setPath(gasPath, srcVertexColor, gasStationVertexColor, gasPathEdgeColor);
 			setPathWalk(walkPath, parkingSpotVertexColor,  destVertexColor,  walkPathEdgeColor);
 			setPath(drivingPath, gasStationVertexColor, parkingSpotVertexColor, drivingPathEdgeColor);
-			lastPath = drivingPath;
+			lastPath = gasPath;
 			lastPath.pop_back();
+			lastPath.insert(lastPath.end(), drivingPath.begin(), drivingPath.end()-1);
 			lastPath.insert(lastPath.end(), walkPath.begin(), walkPath.end());
 		}
 	}
 	gv->rearrange();
 	return 0;
 }
-
