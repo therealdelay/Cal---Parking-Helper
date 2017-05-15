@@ -3,11 +3,12 @@
 #include <iostream>
 #include <sstream>
 #include <map>
-#include <string.h>
+#include <algorithm>
 #include "graphviewer.h"
 #include "Graph.h"
 #include "util.h"
 #include "ParkingSpot.h"
+#include "matcher.h"
 
 /**
  * Class Cidade keeps information about the city, in particular it's streets, vertexes, parking spots, gas spots and bus stops.
@@ -23,6 +24,8 @@ private:
 	vector<int> lastPath; ///< Serves to delete the last painted path on the map
 	vector<Vertex<int> *> busStops; ///< Keeps all the bus stops of the map
 	map<string, int> spots; ///< map the type of the vertex to the correspondent id
+	vector<string> streets;
+	vector< vector<int> > streetParkingSpots;
 
 	const static float latmax = 40.86086;
 	const static float latmin = 40.8481;
@@ -44,6 +47,10 @@ private:
 	static double busTicket; ///< price of the bus ticket
 	static unsigned int edgeNumber;
 	static unsigned int lastedgeNumber;
+
+	bool vertexExists(int id);
+
+	bool isParkingSpot(int id);
 	/**
 	 * This function paints, using the graphicviewer, the chosen path from the source vertex to the destiny vertex.
 	 * It has specific colours to the source vertex, the path vertex and the destiny vertex.
@@ -124,6 +131,8 @@ private:
 	 *	@return -1 if gas spot isn't found, id of the closest gas spot if successful
 	 */
 	int getClosestGasStationSpot(const int &dest);
+
+	void setStreetPath(const unsigned int &streetIndex);
 	/**
 	 * This function clears the graphicviewer, that is, it sets all the colours to the default ones.
 	 */
@@ -212,4 +221,15 @@ public:
 	 * @return 1 if error, 0 if success
 	 */
 	int getCheapestRoute(const int &src, string dest, bool gas);
+
+
+	struct sort_first {
+	    bool operator()(const std::pair<float,int> &left, const std::pair<float,int> &right) {
+	        return left.first < right.first;
+	    }
+	};
+
+	void exactStreetSearch(string toSearch);
+
+	void aproxStreetSearch(string toSearch);
 };

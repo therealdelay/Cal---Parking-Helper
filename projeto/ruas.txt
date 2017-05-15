@@ -26,8 +26,6 @@
 187785527;noname;False
 221192377;Via Sul;True
 221193441;Via Norte;True
-221828767;noname;True
-221828768;noname;True
 222324415;Travessa do Gueide;True
 222330703;Rua da Escola;True
 222330740;Avenida de Santo Antonio;False
@@ -36,7 +34,6 @@
 222338106;Travessa da Corredoura;True
 222338368;Rua Vasco da Gama;True
 222338649;Beco da Corredoura;True
-222339797;noname;True
 222340762;Travessa das Leiras;True
 222341169;Travessa do Passal de Cima;True
 382772097;Travessa do Gueide;True

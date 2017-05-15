@@ -1,28 +1,5 @@
 #include "menu.h"
 
-int getOption(int a, int b){
-	std::cout << "> ";
-	int c;
-	cin >> c;
-	if(cin.fail())
-		return -1;
-	if(c == 0)
-		return 0;
-	if(c < a || c > b)
-		return -1;
-	return c;
-}
-
-
-void clearBuffer(){
-	std::cin.clear();
-	std::cin.ignore(1000, '\n');
-}
-void invalidOption(){
-	std::cout << "Invalid option\n";
-	clearBuffer();
-}
-
 void closestSpot(Cidade &c){
 	clearBuffer();
 	long long int id;
@@ -127,15 +104,39 @@ void cheapestSpot(Cidade &c){
 	c.getCheapestRoute(id, dest, gas);
 }
 
+void exactStreetSearch(Cidade &c){
+	clearBuffer();
+	string streetName;
+	cout << "Street Name\n> ";
+	getline(cin, streetName);
+	if(streetName != "")
+		c.exactStreetSearch(streetName);
+	else
+		invalidOption();
+}
+
+void aproxStreetSearch(Cidade &c){
+	clearBuffer();
+	string streetName;
+	cout << "Street Name\n> ";
+	getline(cin, streetName);
+	if(streetName != "")
+		c.aproxStreetSearch(streetName);
+	else
+		invalidOption();
+}
+
 void mainMenu(Cidade &c){
 	int option;
 	while(true){
 		cout << "Park your car!\n\n\n";
 		cout << "1 - Closest parking spot\n"
-				<< "2 - Cheapest parking spot\n\n"
+				<< "2 - Cheapest parking spot\n"
+				<< "3 - Exact Street Search\n"
+				<< "4 - Approximate Street Search\n\n"
 				<< "0 - Exit\n";
 
-		option = getOption(1,2);
+		option = getOption(1,4);
 
 		if(option == 0)
 			break;
@@ -151,6 +152,15 @@ void mainMenu(Cidade &c){
 		}
 		case 2:
 			cheapestSpot(c);
+			break;
+
+		case 3:
+			exactStreetSearch(c);
+			getchar();
+			break;
+		case 4:
+			aproxStreetSearch(c);
+			getchar();
 			break;
 		}
 	}

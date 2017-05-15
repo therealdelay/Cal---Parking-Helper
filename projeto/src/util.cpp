@@ -39,3 +39,27 @@ int compareNames(string a, string b){
 	}
 	return 0;
 }
+
+
+int getOption(int a, int b){
+	std::cout << "> ";
+	int c;
+	cin >> c;
+	if(cin.fail())
+		return -1;
+	if(c == 0)
+		return 0;
+	if(c < a || c > b)
+		return -1;
+	return c;
+}
+
+
+void clearBuffer(){
+	std::cin.clear();
+	std::cin.ignore(1000, '\n');
+}
+void invalidOption(){
+	std::cout << "Invalid option\n";
+	clearBuffer();
+}

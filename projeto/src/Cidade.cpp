@@ -35,6 +35,18 @@ void Cidade::setMileage(double mil) {
 	mileage = mil;
 }
 
+bool Cidade::vertexExists(int id){
+	return total.getVertex(id) != NULL;
+}
+
+bool Cidade::isParkingSpot(int id){
+	for(unsigned int i = 0; i < parkingSpots.size(); i++){
+		if(parkingSpots[i].getId() == id)
+			return true;
+	}
+	return false;
+}
+
 float Cidade::Haversine(double idNoOrigem, double idNoDestino){
 	typename vector<Vertex<int>*>::iterator it= total.getVertexSet().begin();
 	typename vector<Vertex<int>*>::iterator ite= total.getVertexSet().end();
@@ -139,7 +151,16 @@ void Cidade::readFromFile()
 		cerr << "Unable to open file datafile.txt";
 		exit(1);   // call system to stop
 	}
+
+	ifstream inFile2;
+	inFile2.open("ruas.txt");
+	if(!inFile2){
+		cerr << "Unable to open file datafile.txt";
+		exit(1);   // call system to stop
+	}
 	int idAresta=0;
+	int lastIdAresta = -1;
+	int lastStreetIndex = -1;
 	int idNoOrigem=0;
 	int idNoDestino=0;
 	int counter = 0 ;
@@ -152,8 +173,51 @@ void Cidade::readFromFile()
 		linestream >> idNoOrigem;
 		std::getline(linestream, data, ';');  // read up-to the first ; (discard ;).
 		linestream >> idNoDestino;
+
+		if(lastIdAresta != idAresta){
+			//cout << "lastIdAresta " << lastIdAresta << " idAresta " << idAresta << endl;
+			lastIdAresta = idAresta;
+			string line;
+			getline(inFile2, line);
+			stringstream linestream(line);
+			string data;
+			linestream >> idAresta;
+			getline(linestream, data, ';');
+			getline(linestream,data,';');
+			if(data != "noname"){
+				unsigned int i;
+				for(i = 0; i < streets.size(); i++){
+					if(streets[i] == data)
+						break;
+				}
+
+				lastStreetIndex = i;
+				if(i == streets.size()){
+					streets.push_back(data);
+					vector<int> v;
+					streetParkingSpots.push_back(v);
+				}
+
+				if(isParkingSpot(idNoOrigem))
+					streetParkingSpots[i].push_back(idNoOrigem);
+				if(isParkingSpot(idNoDestino))
+					streetParkingSpots[i].push_back(idNoDestino);
+				//cout << data << " - " << idNoOrigem << " - " << idNoDestino << endl;
+			}
+			else
+				lastStreetIndex = -1;
+			//cout << "lastStreetIndex: " << lastStreetIndex << endl;
+		}
+		else if(lastStreetIndex != -1){
+			//cout << idNoDestino << endl;
+			if(isParkingSpot(idNoDestino))
+				streetParkingSpots[lastStreetIndex].push_back(idNoDestino);
+		}
+
 		total.addEdge(counter,idNoOrigem, idNoDestino,Haversine(idNoOrigem, idNoDestino));
 		gv->addEdge(counter, idNoOrigem, idNoDestino, EdgeType::DIRECTED);
+		if(lastStreetIndex != -1)
+			gv->setEdgeLabel(counter, streets[lastStreetIndex]);
 		counter++;
 		total.addEdge(counter,idNoDestino, idNoOrigem,Haversine(idNoOrigem, idNoDestino));
 		gv->addEdge(counter, idNoDestino, idNoOrigem, EdgeType::DIRECTED);
@@ -163,6 +227,15 @@ void Cidade::readFromFile()
 	edgeNumber = counter;
 	lastedgeNumber = edgeNumber+1;
 	inFile.close();
+	inFile2.close();
+
+	for(unsigned int h = 0; h < streets.size(); h++){
+		cout << streets[h];
+		for(unsigned int l = 0; l < streetParkingSpots[h].size(); l++)
+			cout << " - " << streetParkingSpots[h][l];
+		cout << endl;
+	}
+
 	gv->rearrange();
 }
 
@@ -376,6 +449,28 @@ vector<int> Cidade::getBusPath(const int &src, const int &dest, double &dist){
 	return path;
 }
 
+void Cidade::setStreetPath(const unsigned int &streetIndex){
+	if(streetParkingSpots[streetIndex].size() != 0){
+		//clearBuffer();
+		int src;
+		cout << "Input ID\n> ";
+		cin >> src;
+		cout << src << endl;
+		if(!vertexExists(src)){
+			cout << "Source ID not found\n";
+			return;
+		}
+		clearGraphViewer();
+		double dist;
+		vector<int> path = getPath(src, streetParkingSpots[streetIndex][0], dist);
+		lastPath = path;
+		setPath(path, srcVertexColor, parkingSpotVertexColor, drivingPathEdgeColor);
+		gv->rearrange();
+	}
+	else
+		cout << "No parking spots available\n\n";
+}
+
 int Cidade::getClosestRoute(const int &src, string dest, bool gas){
 	map<string, int>::const_iterator it = spots.begin();
 	for(; it != spots.end(); it++){
@@ -386,6 +481,12 @@ int Cidade::getClosestRoute(const int &src, string dest, bool gas){
 		return 1;
 	double trash;
 	double dist;
+
+
+	if(!vertexExists(src)){
+		cout << "Source ID not found\n";
+		return 1;
+	}
 
 	//CLEAR VIEWER
 	clearGraphViewer();
@@ -449,6 +550,11 @@ int Cidade::getCheapestRoute(const int &src, string dest, bool gas){
 	}
 	if(it == spots.end())
 		return 1;
+
+	if(!vertexExists(src)){
+		cout << "Source ID not found\n";
+		return 1;
+	}
 
 	//CLEAR GRAPHVIEWER
 	clearGraphViewer();
@@ -567,4 +673,74 @@ int Cidade::getCheapestRoute(const int &src, string dest, bool gas){
 	}
 	gv->rearrange();
 	return 0;
+}
+
+void Cidade::exactStreetSearch(string toSearch){
+	vector<int> pi =  calcPi(toSearch);
+	for(unsigned int l = 0; l < pi.size(); l++)
+		cout << pi[l];
+	cout << endl;
+	cout << "depois de pi" << endl;
+	vector<unsigned int > st;
+	for(unsigned int i = 0; i < streets.size(); i++){
+		if(kmpMatcher(streets[i], toSearch, pi))
+			st.push_back(i);
+	}
+
+	if(st.size() == 0)
+		return;
+
+	unsigned int j;
+	for(j = 0; j < st.size(); j++)
+		cout << j+1 << " - " << streets[st[j]] << endl;
+	cout << "\n0 - Cancel\n";
+
+	int option = getOption(1, j);
+
+	if(option == -1){
+		invalidOption();
+		return;
+	}
+	else if(option == 0)
+		return;
+
+	setStreetPath(st[option-1]);
+}
+
+void Cidade::aproxStreetSearch(const string toSearch){
+	float avg;
+	vector< pair<float,unsigned int> > avgDists;
+	for(unsigned int i = 0; i < streets.size(); i++){
+		avg = avgApproximateStringMatching(streets[i], toSearch);
+		avg *= avg;
+		pair<float,unsigned int> p(avg, i);
+		avgDists.push_back(p);
+	}
+
+	sort(avgDists.begin(), avgDists.end(), sort_first());
+
+	/*
+	for(unsigned int j = 0; j < avgDists.size(); j++){
+		cout << streets[avgDists[j].second] << " - " << avgDists[j].first << endl;
+	}
+	*/
+
+	unsigned int j;
+	for(j = 0; j < 3; j++){
+		if(j > avgDists.size()-1)
+			break;
+		else
+			cout << j+1 << " - "<< streets[avgDists[j].second] << endl;
+	}
+	cout << "\n0 - Cancel\n";
+
+	int option = getOption(1, j);
+	if(option == -1){
+		invalidOption();
+		return;
+	}
+	else if(option == 0)
+		return;
+
+	setStreetPath(avgDists[option-1].second);
 }
