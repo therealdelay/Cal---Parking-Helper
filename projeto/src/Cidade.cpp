@@ -161,6 +161,8 @@ void Cidade::readFromFile()
 	int idAresta=0;
 	int lastIdAresta = -1;
 	int lastStreetIndex = -1;
+	string lastDistrict;
+	unsigned int lastDistrictIndex = 0;
 	int idNoOrigem=0;
 	int idNoDestino=0;
 	int counter = 0 ;
@@ -179,11 +181,12 @@ void Cidade::readFromFile()
 			lastIdAresta = idAresta;
 			string line;
 			getline(inFile2, line);
-			stringstream linestream(line);
-			string data;
+			istringstream linestream(line);
+			string data, district;
 			linestream >> idAresta;
 			getline(linestream, data, ';');
-			getline(linestream,data,';');
+			getline(linestream,data, ';');
+			getline(linestream, district);
 			if(data != "noname"){
 				unsigned int i;
 				for(i = 0; i < streets.size(); i++){
@@ -198,10 +201,19 @@ void Cidade::readFromFile()
 					streetParkingSpots.push_back(v);
 				}
 
+				if(district != lastDistrict){
+					vector<unsigned int> v;
+					districts.push_back(v);
+					lastDistrict = district;
+				}
+
+				districts[districts.size()-1].push_back(i);
+
 				if(isParkingSpot(idNoOrigem))
 					streetParkingSpots[i].push_back(idNoOrigem);
 				if(isParkingSpot(idNoDestino))
 					streetParkingSpots[i].push_back(idNoDestino);
+
 				//cout << data << " - " << idNoOrigem << " - " << idNoDestino << endl;
 			}
 			else
@@ -235,6 +247,15 @@ void Cidade::readFromFile()
 			cout << " - " << streetParkingSpots[h][l];
 		cout << endl;
 	}
+
+	cout << "numero de distritos " << districts.size() << endl;
+	for(unsigned int j = 0; j < districts.size(); j++){
+		for(unsigned int g = 0; g < districts[j].size(); g++){
+			cout << streets[districts[j][g]] << " - ";
+		}
+		cout << endl;
+	}
+	cout << endl;
 
 	gv->rearrange();
 }
@@ -719,11 +740,9 @@ void Cidade::aproxStreetSearch(const string toSearch){
 
 	sort(avgDists.begin(), avgDists.end(), sort_first());
 
-	/*
 	for(unsigned int j = 0; j < avgDists.size(); j++){
 		cout << streets[avgDists[j].second] << " - " << avgDists[j].first << endl;
 	}
-	*/
 
 	unsigned int j;
 	for(j = 0; j < 3; j++){

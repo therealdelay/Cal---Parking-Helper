@@ -26,6 +26,7 @@ private:
 	map<string, int> spots; ///< map the type of the vertex to the correspondent id
 	vector<string> streets;
 	vector< vector<int> > streetParkingSpots;
+	vector< vector <unsigned int> > districts;
 
 	const static float latmax = 40.86086;
 	const static float latmin = 40.8481;
