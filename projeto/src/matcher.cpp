@@ -54,6 +54,7 @@ float avgApproximateStringMatching (const string text, const string word){
 
 	//unsigned int wordNo = wordWords.size();//+textWords.size();
 	unsigned int wordNo = textWords.size();
+	float min = 400000.0, dist;
 	for(unsigned int i = 0; i < textWords.size(); i++){
 		/*
 		for(unsigned int j = 0; j < wordWords.size(); j++){
@@ -63,10 +64,14 @@ float avgApproximateStringMatching (const string text, const string word){
 			avg += distApproximateStringMatching(wordWords[j], textWords[i]);
 		}
 		*/
-		//float fraction = (float) textWords[i].size()/(float) text.size();
-		avg += distApproximateStringMatching(textWords[i], word);
+		//float fraction = (float) text.size()/(float) textWords[i].size();
+		//avg += distApproximateStringMatching(textWords[i], word);
+		dist = distApproximateStringMatching(textWords[i], word);
+		if(dist < min)
+			min = dist;
 	}
-	return avg/wordNo;
+	//return avg/wordNo;
+	return min;
 }
 
 int distApproximateStringMatching(const string text, const string word){

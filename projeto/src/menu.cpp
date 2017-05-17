@@ -106,17 +106,27 @@ void cheapestSpot(Cidade &c){
 
 void exactStreetSearch(Cidade &c){
 	clearBuffer();
+	string districtName;
+	cout << "\nDistrict\n> ";
+	getline(cin, districtName);
+	districtName = removeSpaces(districtName);
 	string streetName;
 	cout << "Street Name\n> ";
 	getline(cin, streetName);
 	if(streetName != "")
-		c.exactStreetSearch(streetName);
+		c.exactStreetSearch(streetName,districtName);
 	else
 		invalidOption();
 }
 
 void aproxStreetSearch(Cidade &c){
 	clearBuffer();
+	/*
+	string districtName;
+	cout << "\nDistrict\n> ";
+	getline(cin, districtName);
+	districtName = removeSpaces(districtName);
+	*/
 	string streetName;
 	cout << "Street Name\n> ";
 	getline(cin, streetName);

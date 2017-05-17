@@ -26,7 +26,8 @@ private:
 	map<string, int> spots; ///< map the type of the vertex to the correspondent id
 	vector<string> streets;
 	vector< vector<int> > streetParkingSpots;
-	vector< vector <unsigned int> > districts;
+	vector<string> districts;
+	vector< vector <unsigned int> > districtsStreets;
 
 	const static float latmax = 40.86086;
 	const static float latmin = 40.8481;
@@ -133,7 +134,9 @@ private:
 	 */
 	int getClosestGasStationSpot(const int &dest);
 
-	void setStreetPath(const unsigned int &streetIndex);
+	void setStreetPath(const unsigned int &streetIndex,	const unsigned int &districtName);
+
+	int getDistrict(const string districtName);
 	/**
 	 * This function clears the graphicviewer, that is, it sets all the colours to the default ones.
 	 */
@@ -225,12 +228,12 @@ public:
 
 
 	struct sort_first {
-	    bool operator()(const std::pair<float,int> &left, const std::pair<float,int> &right) {
+	    bool operator()(const pair<float, pair<unsigned int, unsigned int> > &left, const pair<float,  pair<unsigned int, unsigned int> > &right) {
 	        return left.first < right.first;
 	    }
 	};
 
-	void exactStreetSearch(string toSearch);
+	void exactStreetSearch(const string toSearch, const string districtName);
 
-	void aproxStreetSearch(string toSearch);
+	void aproxStreetSearch(const string toSearch);
 };

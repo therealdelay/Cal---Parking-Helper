@@ -22,7 +22,7 @@
 161132918;Rua de Vila Cha;Casteloes
 161132919;Rua de Vila Cha;Casteloes
 185988776;Estreito das Ovelhas;Casteloes
-185988777;Avenida das FLores;Casteloes
+185988777;Avenida das Flores;Casteloes
 187785527;Estreito Estreitinho;Casteloes
 221192377;Via Sul;Casteloes
 221193441;Via Norte;Casteloes

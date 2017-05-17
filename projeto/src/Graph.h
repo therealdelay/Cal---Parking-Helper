@@ -32,6 +32,7 @@ class Vertex {
 	double xrad;
 	double yrad;
 	string type;
+	string district;
 	vector<Edge<T>  > adj;
 	bool visited;
 	bool processing;
@@ -51,8 +52,10 @@ public:
 	double getXrad() const;
 	double getYrad() const;
 	string getType() const;
+	string getDistrict() const;
 	vector<Edge<T>  > getAdj();
 	void setInfo(T info);
+	void setDistrict(const string &district);
 
 	double getDist() const;
 	int getIndegree() const;
@@ -128,6 +131,10 @@ string Vertex<T>::getType() const{
 	return type;
 }
 
+template <class T>
+string Vertex<T>::getDistrict() const{
+	return district;
+}
 
 template <class T>
 double Vertex<T>::getDist() const {
@@ -143,6 +150,11 @@ vector<Edge<T>  > Vertex<T>::getAdj(){
 template <class T>
 void Vertex<T>::setInfo(T info) {
 	this->info = info;
+}
+
+template <class T>
+void Vertex<T>::setDistrict(const string &district){
+	this->district = district;
 }
 
 template <class T>
