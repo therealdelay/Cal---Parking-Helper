@@ -34,6 +34,62 @@ vector<int> calcPi(string word){
 	return prefix;
 }
 
+/*float avgApproximateStringMatching (const string text, const string word){
+	//cout << text << " - " << word << endl;
+	float avg = 0;
+	string wordtmp;
+	vector<string> textWords;
+	istringstream searchBuffer(text);
+	while(searchBuffer >> wordtmp){
+		//cout << wordtmp << endl;
+		textWords.push_back(wordtmp);
+	}
+
+	vector<string> wordWords;
+	istringstream searchBuffer2(word);
+	while(searchBuffer2 >> wordtmp){
+		//cout << wordtmp << endl;
+		wordWords.push_back(wordtmp);
+	}
+
+	//unsigned int wordNo = wordWords.size();//+textWords.size();
+	unsigned int wordNo = textWords.size();
+	float min = 400000.0, dist, max = -1;
+	for(unsigned int i = 0; i < textWords.size(); i++){
+
+		for(unsigned int j = 0; j < wordWords.size(); j++){
+			//cout << textWords[i].size() << " - " << text.size() << endl;
+			//float fraction = (float) textWords[i].size()/(float) text.size();
+			//cout << fraction << endl;
+			//avg += distApproximateStringMatching(wordWords[j], textWords[i]);
+			//cout << textWords[i] << " - " << wordWords[j];
+			dist = distApproximateStringMatching(textWords[i], wordWords[j]);
+			avg += dist*2;
+			//cout << " - " << dist << endl;
+			if(dist < min)
+				min = dist;
+			if(dist > max)
+				max = dist;
+		}
+		/*
+		dist = distApproximateStringMatching(textWords[i], word);
+		cout << dist << endl;
+		if(dist < min)
+			min = dist;
+		if(dist > max)
+			max = dist;
+		//float fraction = (float) text.size()/(float) textWords[i].size();
+		//avg += distApproximateStringMatching(textWords[i], word);
+
+	}
+	//return avg/wordNo;
+	avg /= textWords.size()+ wordWords.size();
+	cout << avg << " - " << min << endl;
+	//return (((float) textWords.size())/wordWords.size())*max*max-(((float) textWords.size())/wordWords.size())*min*min;
+	return avg/(textWords.size()+ wordWords.size()) + 2*min;
+}
+*/
+
 float avgApproximateStringMatching (const string text, const string word){
 	//cout << text << " - " << word << endl;
 	float avg = 0;
@@ -54,26 +110,42 @@ float avgApproximateStringMatching (const string text, const string word){
 
 	//unsigned int wordNo = wordWords.size();//+textWords.size();
 	unsigned int wordNo = textWords.size();
-	float min = 400000.0, dist;
+	float min = 400000.0, dist, minT = 400000.0;
 	for(unsigned int i = 0; i < textWords.size(); i++){
-		/*
+
 		for(unsigned int j = 0; j < wordWords.size(); j++){
 			//cout << textWords[i].size() << " - " << text.size() << endl;
 			//float fraction = (float) textWords[i].size()/(float) text.size();
 			//cout << fraction << endl;
-			avg += distApproximateStringMatching(wordWords[j], textWords[i]);
+			//avg += distApproximateStringMatching(wordWords[j], textWords[i]);
+			//cout << textWords[i] << " - " << wordWords[j];
+			dist = distApproximateStringMatching(textWords[i], wordWords[j]);
+			//avg += dist*2;
+			//cout << " - " << dist << endl;
+			if(dist < min)
+				min = dist;
+			if(dist < minT)
+				minT = dist;
 		}
-		*/
-		//float fraction = (float) text.size()/(float) textWords[i].size();
-		//avg += distApproximateStringMatching(textWords[i], word);
+		/*
 		dist = distApproximateStringMatching(textWords[i], word);
+		cout << dist << endl;
 		if(dist < min)
 			min = dist;
+		if(dist > max)
+			max = dist;
+		//float fraction = (float) text.size()/(float) textWords[i].size();
+		//avg += distApproximateStringMatching(textWords[i], word);
+		 */
+		avg += min;
+		min = 400000.0;
 	}
 	//return avg/wordNo;
-	return min;
+	avg /= textWords.size();
+	//cout << avg << " - " << min << endl;
+	//return (((float) textWords.size())/wordWords.size())*max*max-(((float) textWords.size())/wordWords.size())*min*min;
+	return avg+minT;
 }
-
 int distApproximateStringMatching(const string text, const string word){
 	int n=text.length();
 	vector<int> d(n+1);
