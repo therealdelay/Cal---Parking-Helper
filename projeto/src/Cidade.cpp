@@ -177,7 +177,6 @@ void Cidade::readFromFile()
 		linestream >> idNoDestino;
 
 		if(lastIdAresta != idAresta){
-			//cout << "lastIdAresta " << lastIdAresta << " idAresta " << idAresta << endl;
 			lastIdAresta = idAresta;
 			string line;
 			getline(inFile2, line);
@@ -211,11 +210,9 @@ void Cidade::readFromFile()
 				else{
 					unsigned int j;
 					for(j = 0; j <	districtsStreets[districtsStreets.size()-1].size(); j++){
-						//cout << streets[districtsStreets[districtsStreets.size()-1][j]] << endl;
 						if(districtsStreets[districtsStreets.size()-1][j] == i)
 							break;
 					}
-					//cout << endl << endl;
 					if(j ==	districtsStreets[districtsStreets.size()-1].size())
 						districtsStreets[districtsStreets.size()-1].push_back(i);   //add new street
 				}
@@ -225,12 +222,9 @@ void Cidade::readFromFile()
 					streetParkingSpots[i].push_back(idNoOrigem);
 				if(isParkingSpot(idNoDestino))
 					streetParkingSpots[i].push_back(idNoDestino);
-
-				//cout << data << " - " << idNoOrigem << " - " << idNoDestino << endl;
 			}
 			else
 				lastStreetIndex = -1;
-			//cout << "lastStreetIndex: " << lastStreetIndex << endl;
 		}
 		else if(lastStreetIndex != -1){
 			//cout << idNoDestino << endl;
@@ -241,10 +235,8 @@ void Cidade::readFromFile()
 		//SET DISTRICT
 		Vertex<int> *v = total.getVertex(idNoOrigem);
 		v->setDistrict(district);
-		//cout << v->getId() << " - " << v->getDistrict() << endl;
 		v = total.getVertex(idNoDestino);
 		v->setDistrict(district);
-		//cout << v->getId() << " - " << v->getDistrict() << endl;
 
 		total.addEdge(counter,idNoOrigem, idNoDestino,Haversine(idNoOrigem, idNoDestino));
 		gv->addEdge(counter, idNoOrigem, idNoDestino, EdgeType::DIRECTED);
@@ -261,6 +253,8 @@ void Cidade::readFromFile()
 	inFile.close();
 	inFile2.close();
 
+
+	/*
 	for(unsigned int h = 0; h < streets.size(); h++){
 		cout << streets[h];
 		for(unsigned int l = 0; l < streetParkingSpots[h].size(); l++)
@@ -276,6 +270,7 @@ void Cidade::readFromFile()
 		cout << endl;
 	}
 	cout << endl;
+	*/
 
 	gv->rearrange();
 }
@@ -494,13 +489,13 @@ void Cidade::setStreetPath(const unsigned int &streetIndex, const unsigned int &
 	cout << endl;
 	for(unsigned int i = 0; i < streetParkingSpots[streetIndex].size(); i++){
 		Vertex<int> *v = total.getVertex(streetParkingSpots[streetIndex][i]);
-		cout << v->getDistrict() << " - ";
+		//cout << v->getDistrict() << " - ";
 		if(v->getDistrict() == districts[districtName]){
-			cout << endl;
+			//cout << endl;
 			int src;
 			cout << "Input ID\n> ";
 			cin >> src;
-			cout << src << endl;
+			//cout << src << endl;
 			if(!vertexExists(src)){
 				cout << "Source ID not found\n";
 				return;
@@ -514,8 +509,7 @@ void Cidade::setStreetPath(const unsigned int &streetIndex, const unsigned int &
 			return;
 		}
 	}
-	cout << endl;
-	cout << "No parking spots available\n\n";
+	cout << "\nNo parking spots available\n\n";
 }
 
 int Cidade::getDistrict(const string districtName){
@@ -617,7 +611,6 @@ int Cidade::getCheapestRoute(const int &src, string dest, bool gas){
 	double distmp;
 	double distgas = 0;
 	double distbus;
-	double distTotal = 0;
 	vector<int> gasPath;
 	vector<int> drivingPath;
 	vector<int> drivingPathBus;
@@ -733,22 +726,14 @@ int Cidade::getCheapestRoute(const int &src, string dest, bool gas){
 void Cidade::exactStreetSearch(const string toSearch, const string districtName){
 	int district = getDistrict(districtName);
 	if(district == -1){
-		cout << "District not found\n";
+		cout << "District not found\n\n";
 		return;
 	}
 
-	cout << endl << districts[district] << endl << endl;
-
 	vector<int> pi =  calcPi(toSearch);
 
-	for(unsigned int l = 0; l < pi.size(); l++)
-		cout << pi[l];
-	cout << endl;
-	cout << "depois de pi" << endl;
 	vector<unsigned int > st;
-
 	for(unsigned int i = 0; i < districtsStreets[district].size(); i++){
-		cout << streets[districtsStreets[district][i]] << endl;
 		if(kmpMatcher(streets[districtsStreets[district][i]], toSearch, pi))
 			st.push_back(districtsStreets[district][i]);
 	}
@@ -756,6 +741,7 @@ void Cidade::exactStreetSearch(const string toSearch, const string districtName)
 	if(st.size() == 0)
 		return;
 
+	cout << endl;
 	unsigned int j;
 	for(j = 0; j < st.size(); j++)
 		cout << j+1 << " - " << streets[st[j]] << endl;
@@ -779,7 +765,6 @@ void Cidade::aproxStreetSearch(const string toSearch){
 	for(unsigned int i = 0; i < districts.size(); i++){
 		for(unsigned int j = 0; j < districtsStreets[i].size(); j++){
 			avg = avgApproximateStringMatching(streets[districtsStreets[i][j]], toSearch);
-			//avg *= avg;
 			pair<unsigned int, unsigned int> pInf(districtsStreets[i][j], i);
 			pair<float, pair<unsigned int,unsigned int> > p(avg, pInf);
 			avgDists.push_back(p);
@@ -788,11 +773,7 @@ void Cidade::aproxStreetSearch(const string toSearch){
 
 	sort(avgDists.begin(), avgDists.end(), sort_first());
 
-	for(unsigned int j = 0; j < avgDists.size(); j++){
-		cout << streets[avgDists[j].second.first] << ", " << districts[avgDists[j].second.second] << " - " << avgDists[j].first << endl;
-	}
 	cout << endl;
-
 	unsigned int j;
 	for(j = 0; j < 3; j++){
 		if(j > avgDists.size()-1)
