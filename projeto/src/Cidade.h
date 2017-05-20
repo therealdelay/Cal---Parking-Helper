@@ -133,9 +133,21 @@ private:
 	 *	@return -1 if gas spot isn't found, id of the closest gas spot if successful
 	 */
 	int getClosestGasStationSpot(const int &dest);
-
+	/**
+	 *  This function chooses the first parking spot in the chosen street and calls the function to get the path from
+	 *  the user location (which is verified) to the respective parking spot. It then paints the path calling a function
+	 *  from the graphicviewer.
+	 *
+	 *  @param streetIndex is the index that represents the street in a vector
+	 */
 	void setStreetPath(const unsigned int &streetIndex,	const unsigned int &districtName);
-
+	/**
+	 * This function goes through all the districts and returns the index of the chosen district in the districts vector.
+	 *
+	 * @param districtName is the name to be searched for
+	 *
+	 * @return -1 if the name not found, index in the districts vector if found
+	 */
 	int getDistrict(const string districtName);
 	/**
 	 * This function clears the graphicviewer, that is, it sets all the colours to the default ones.
@@ -225,15 +237,31 @@ public:
 	 * @return 1 if error, 0 if success
 	 */
 	int getCheapestRoute(const int &src, string dest, bool gas);
-
-
+	/**
+	 *  This struct sorts two pairs by the average of approximation to the string to search (after using the approximate string matching).
+	 *  The string with less average comes first to the one with more.
+	 */
 	struct sort_first {
-	    bool operator()(const pair<float, pair<unsigned int, unsigned int> > &left, const pair<float,  pair<unsigned int, unsigned int> > &right) {
-	        return left.first < right.first;
-	    }
+		bool operator()(const pair<float, pair<unsigned int, unsigned int> > &left, const pair<float,  pair<unsigned int, unsigned int> > &right) {
+			return left.first < right.first;
+		}
 	};
-
+	/**
+	 *	This function implements the KMP Algorithm. It starts by calculating the Pi of the input string of the user.
+	 *	Using the PI, it runs the KMP Algorithm with all the streets of the district chosen by the user. It then
+	 *	shows the streets that got the positive result from the KMP Algorithm, waiting for the user to choose one of them,
+	 *	proceeding then to show the path to call for the function to show the route to a parking spot in the chosen street.
+	 *
+	 *	@param toSearch is the input string of the user
+	 *
+	 */
 	void exactStreetSearch(const string toSearch, const string districtName);
-
+	/**
+	 *	This function implements the algorithm of Approximate String Matching, using the input string
+	 *	to get names of streets similar to it. It also shows the districts where these streets are located.
+	 *	The user chooses the street it wants to go to, proceeding then to show the path to the parking spot in that street.
+	 *
+	 *	@param toSearch is the input string of the user
+	 */
 	void aproxStreetSearch(const string toSearch);
 };
