@@ -160,11 +160,9 @@ void mainMenu(Cidade &c){
 
 		case 3:
 			exactStreetSearch(c);
-			getchar();
 			break;
 		case 4:
 			aproxStreetSearch(c);
-			getchar();
 			break;
 		}
 	}

@@ -253,25 +253,6 @@ void Cidade::readFromFile()
 	inFile.close();
 	inFile2.close();
 
-
-	/*
-	for(unsigned int h = 0; h < streets.size(); h++){
-		cout << streets[h];
-		for(unsigned int l = 0; l < streetParkingSpots[h].size(); l++)
-			cout << " - " << streetParkingSpots[h][l];
-		cout << endl;
-	}
-
-	cout << "numero de distritos " << districts.size() << endl;
-	for(unsigned int j = 0; j < districts.size(); j++){
-		for(unsigned int g = 0; g < districtsStreets[j].size(); g++){
-			cout << streets[districtsStreets[j][g]] << " - ";
-		}
-		cout << endl;
-	}
-	cout << endl;
-	*/
-
 	gv->rearrange();
 }
 
@@ -489,13 +470,10 @@ void Cidade::setStreetPath(const unsigned int &streetIndex, const unsigned int &
 	cout << endl;
 	for(unsigned int i = 0; i < streetParkingSpots[streetIndex].size(); i++){
 		Vertex<int> *v = total.getVertex(streetParkingSpots[streetIndex][i]);
-		//cout << v->getDistrict() << " - ";
 		if(v->getDistrict() == districts[districtName]){
-			//cout << endl;
 			int src;
 			cout << "Input ID\n> ";
 			cin >> src;
-			//cout << src << endl;
 			if(!vertexExists(src)){
 				cout << "Source ID not found\n";
 				return;
@@ -726,7 +704,7 @@ int Cidade::getCheapestRoute(const int &src, string dest, bool gas){
 void Cidade::exactStreetSearch(const string toSearch, const string districtName){
 	int district = getDistrict(districtName);
 	if(district == -1){
-		cout << "District not found\n\n";
+		cout << "\nDistrict not found\n\n";
 		return;
 	}
 
